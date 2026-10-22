@@ -19,7 +19,7 @@ what each one is for, and how bad the security ones are.
 | Security PRs that no longer apply to `main` | **84 (42%)** |
 | Security PRs mergeable and clean | **4** |
 
-Two findings matter more than the rest:
+**Twelve findings.** Two matter more than the rest:
 
 1. **brotli decoder OOB write, CVE-2026-111497** — remote, unauthenticated, reachable
    through `fetch()` on any `Content-Encoding: br` response. Every released Bun is
@@ -30,9 +30,9 @@ Two findings matter more than the rest:
 
 Plus a structural result: detection and patching work; **shipping does not**. Three
 high-profile issues in three days — brotli, the [FoxIO QPACK amplification
-attack](https://foxio.io/blog/header-accordions-qpack-amplification-attacks-against-http-3-servers),
-and the [eMudhra CA compromise](https://emudhra.we-have-a-problem.com/) — were all patched
-on `main` within a day, and none is in a release.
+attack](https://foxio.io/blog/header-accordions-qpack-amplification-attacks-against-http-3-servers)
+(F11), and the [eMudhra CA compromise](https://emudhra.we-have-a-problem.com/) (F12) — were
+all patched on `main` within a day, and none is in a release.
 
 ## Read
 
@@ -40,7 +40,7 @@ on `main` within a day, and none is in a release.
 |---|---|
 | **[reports/README.md](reports/README.md)** | The index and the full summary |
 | [reports/01-overview.md](reports/01-overview.md) | The shape of the queue: who writes it, what it is, how old |
-| [reports/02-security-severity.md](reports/02-security-severity.md) | **The deep dive** — 10 findings, CVSS 3.1, 6 verified with proofs of concept |
+| [reports/02-security-severity.md](reports/02-security-severity.md) | **The deep dive** — 12 findings, CVSS 3.1, 6 verified with proofs of concept |
 | [reports/03-security-triage.md](reports/03-security-triage.md) | All 202 security-relevant PRs, rated, including the non-findings |
 | [reports/04-advisory-check.md](reports/04-advisory-check.md) | Two public advisories checked against Bun |
 | [reports/inventory/](reports/inventory/) | All 5,652 PRs, one row each, grouped by purpose |

@@ -9,6 +9,11 @@
 a release.** Bun 1.4.3 is vulnerable to both, exactly as both pages say. The fixes merged
 on 2026-10-21 and 2026-10-22, hours before this check.
 
+These are written up as findings **F11** (QPACK) and **F12** (eMudhra) in
+[`02-security-severity.md`](02-security-severity.md); this file is the detailed appendix —
+the reproduction commands, the release-lag table, and the reasoning about why each was
+missed by the PR triage.
+
 | Advisory | Bun 1.4.3 | `main` | Fix | Merged | In a release? |
 |---|---|---|---|---|---|
 | QPACK amplification | **vulnerable** | fixed | [#46392](https://github.com/oven-sh/bun/pull/46392) + [#46436](https://github.com/oven-sh/bun/pull/46436) | 2026-10-22 02:13Z / 04:18Z | **No** |

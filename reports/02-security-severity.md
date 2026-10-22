@@ -21,10 +21,12 @@
 12. [F8 · `Bun.cron()` predictable `/tmp` log path](#f8--buncron-predictable-tmp-log-path)
 13. [F9 · `bun audit` fails open](#f9--bun-audit-fails-open)
 14. [F10 · HTTP/2 client `originSet` grows without bound](#f10--http2-client-originset-grows-without-bound)
-15. [Everything else worth knowing](#15-everything-else-worth-knowing)
-16. [Non-findings — things that look security-relevant and are not](#16-non-findings--things-that-look-security-relevant-and-are-not)
-17. [The systemic finding](#17-the-systemic-finding)
-18. [What I would do, in order](#18-what-i-would-do-in-order)
+15. [F11 · QPACK header amplification — HTTP/3](#f11--qpack-header-amplification--http3-foxio)
+16. [F12 · eMudhra intermediate CA compromise](#f12--emudhra-intermediate-ca-compromise)
+17. [Everything else worth knowing](#17-everything-else-worth-knowing)
+18. [Non-findings — things that look security-relevant and are not](#18-non-findings--things-that-look-security-relevant-and-are-not)
+19. [The systemic finding](#19-the-systemic-finding)
+20. [What I would do, in order](#20-what-i-would-do-in-order)
 
 ---
 
@@ -50,9 +52,14 @@ polynomial-time `URLPattern`, an HTTP/2 CONTINUATION flood, a symlink-following 
 macOS, WASI hostcall bounds checking, a predictable `/tmp` path in `Bun.cron()`, and two
 ways `bun audit` reports "clean" when it is not.
 
+**Two more findings came from outside the queue.** The FoxIO QPACK amplification attack
+(F11) and the eMudhra CA compromise (F12) were both published on 2026-10-20 naming Bun as
+unpatched. Both are real, both are fixed on `main`, and both are in **no release**.
+
 The most striking finding is structural: **84 of the 202 security PRs no longer apply to
-`main`**, four are mergeable and clean, and the median security PR has been open for
-**68 days**. The queue, not the bugs, is the bottleneck.
+`main`**, four are mergeable and clean, the median security PR has been open for
+**68 days** — and three high-profile fixes (F1, F11, F12) are sitting on `main` waiting for
+a release. The queue and the release channel, not the bugs, are the bottleneck.
 
 ---
 
@@ -84,6 +91,8 @@ users actually run?*
 | `bun audit` severity default on `main` | `CommandLineArguments.rs` | **Unfixed** — `AuditLevel::from_string(severity).unwrap_or(AuditLevel::Moderate)` |
 | duplicate `Host` on `main` | `packages/bun-uws/src/HttpParser.h` | **Unfixed** — no duplicate-Host check exists |
 | CVE-2024-45296 severity | GitHub advisory database | 7.5 High, `AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H` — the benchmark for F4 |
+| QPACK amplification live in 1.4.3? | `quic.c` at tag `bun-v1.4.3` vs `main` | **Vulnerable in 1.4.3** (advertises `es_max_header_list_size`, never enforces); **fixed on `main`** (cumulative `h->size` + 200-field cap) |
+| eMudhra distrust in 1.4.3? | `blocked_spkis.cpp` at tag `bun-v1.4.3` vs `main` | **Absent in 1.4.3**; **8 eMudhra SPKIs on `main`** |
 
 **And I ran them.** Bun 1.4.0 was installed locally, so six of the findings below are
 backed by a proof of concept I executed, not just by the PR text. The PoCs are in
@@ -131,6 +140,8 @@ because that is where Bun is used.
 | F8 | [#29144](https://github.com/oven-sh/bun/pull/29144) | `Bun.cron()` predictable `/tmp` log path | CWE-377 | **5.0 Med** | **Yes** | **Yes** | confirmed |
 | F9 | [#45668](https://github.com/oven-sh/bun/pull/45668) + [#46143](https://github.com/oven-sh/bun/pull/46143) | `bun audit` fails open / reports clean on unchecked packages | CWE-636 | control bypass | **Yes** | **Yes** | confirmed |
 | F10 | [#42411](https://github.com/oven-sh/bun/pull/42411) | HTTP/2 client `originSet` unbounded | CWE-400 | **6.5 Med** | **Yes** | **Yes** | author-reported |
+| F11 | [#46392](https://github.com/oven-sh/bun/pull/46392) + [#46436](https://github.com/oven-sh/bun/pull/46436) | QPACK header amplification, HTTP/3 (FoxIO) | CWE-400 | **7.5 High** | No (fixed 10-22) | **Yes** | verified |
+| F12 | [#46300](https://github.com/oven-sh/bun/pull/46300) | eMudhra intermediate CA compromise — no distrust list | CWE-295 | **8.7 High** | No (fixed 10-21) | **Yes** | verified |
 | — | [#33191](https://github.com/oven-sh/bun/pull/33191) | node:http/http2 hardening bundle | mixed | varies | partially | — | confirmed |
 
 ---
@@ -573,7 +584,159 @@ description, but did not reproduce the growth.
 
 ---
 
-## 15. Everything else worth knowing
+## F11 · QPACK header amplification — HTTP/3 (FoxIO)
+
+> **PRs [#46392](https://github.com/oven-sh/bun/pull/46392) + [#46436](https://github.com/oven-sh/bun/pull/46436)** · **both merged 2026-10-22** · not open · **CVSS 7.5 High (availability only)**
+
+*Published as [Header Accordions: QPACK amplification attacks against HTTP/3 servers](https://foxio.io/blog/header-accordions-qpack-amplification-attacks-against-http-3-servers), FoxIO, 2026-10-20. Bun reported 2026-05-24.*
+
+### The attack
+
+QPACK compresses HTTP/3 header fields. A dynamic-table entry of ~4 KiB can be referenced
+by a **1-byte** indexed reference, and each reference materializes a fresh copy of the full
+entry in memory. One connection, 100 streams, ~60,000 references per stream — 5.8 MiB of
+wire — is enough to OOM-kill a 2 GiB container. Measured amplification against Bun: **~4000×**.
+
+The defence RFC 9114 §4.2.2 describes is a **cumulative** budget over the decoded field
+list — name + value + **32 bytes of overhead per field** — enforced as fields are decoded
+and retained. Not a per-field size check, and not a check on the compressed frame.
+
+### Verified against the source
+
+**1.4.3 is vulnerable.** `packages/bun-usockets/src/quic.c` at tag `bun-v1.4.3` advertises
+the limit and never reads it back — there is no byte accounting, no field counter, no cap:
+
+```
+$ gh api ".../quic.c?ref=bun-v1.4.3" -q .content | base64 -d | grep -nE "h->size|max_fields|es_max_header_list_size"
+838:  ctx->settings.es_max_header_list_size = 16 * 1024;
+1382: ctx->settings.es_max_header_list_size = 64 * 1024;
+```
+
+**`main` is fixed.** The same function now accumulates per §4.2.2 and enforces it:
+
+```c
+h->size += (size_t) hdr->name_len + hdr->val_len + 32;   /* the 32-byte overhead */
+h->fields++;
+if (h->size > h->max_size || h->fields > h->max_fields) { ... }
+```
+
+with `max_fields = US_QUIC_MAX_REQUEST_FIELDS` (200) for a server and a hard cap at
+`2 × max_size`. FoxIO's second finding — an `unsigned int` capacity counter that wraps
+when doubled — is gone too: `ncap` is a `size_t` bounded by `hard_cap` before narrowing.
+
+### The fix
+
+[#46392](https://github.com/oven-sh/bun/pull/46392) (2026-10-22 02:13Z): *"header size
+limits are now enforced, counted as in RFC 9114 §4.2.2. The server enforces the limit it
+advertises (16 KB by default) and answers `431` to a request over it… A request may have
+200 fields."* [#46436](https://github.com/oven-sh/bun/pull/46436) (04:18Z) then lifts
+lsquic's own 64 KB internal caps while explicitly leaving those limits in place.
+
+With a 16 KB cumulative budget, the 4 KiB entry referenced 60,000 times is refused around
+the fourth reference.
+
+### Exposure and severity
+
+Only apps that opt in to the HTTP/3 server (`Bun.serve({ http3: true })`) or the HTTP/3
+client (`fetch` with `protocol: "http3"`) are in the path. That is narrower than F1.
+
+`CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H` = **7.5**, availability only — the
+arithmetic ceiling for a pure DoS, and it overstates this one somewhat, since the listener
+is opt-in and a proxy can absorb it. For anyone actually running `http3: true` on an
+untrusted network I would treat it as **High**: one connection, no authentication, and the
+outcome is an OOM kill rather than a slowdown.
+
+### Status
+
+**Fixed on `main`, in no release.** On 1.4.3, FoxIO's mitigation is the right one: do not
+expose an HTTP/3 server until a release contains #46392.
+
+---
+
+## F12 · eMudhra intermediate CA compromise
+
+> **PR [#46300](https://github.com/oven-sh/bun/pull/46300)** · **merged 2026-10-21** · not open · **CVSS 8.7 High**
+
+*Public advisory: [emudhra.we-have-a-problem.com](https://emudhra.we-have-a-problem.com/), 2026-10-20.*
+
+### What happened
+
+Eight eMudhra (emSign) **intermediate** CA private keys are compromised, and the cause is
+not a leak — per the advisory, *"the private keys for the intermediate certificates were
+incorrectly generated by the CA. This means that anyone can recover them from the
+certificates."* They chain to roots trusted by the Mozilla, Microsoft, Apple and Chrome
+programs, and have been recoverable since April 2025.
+
+Anyone holding those keys can issue a certificate for **any domain** and have it verify
+against any client that still trusts the intermediates.
+
+### Why a runtime client is the exposure
+
+Browsers were protected from 2026-10-17 by revocation infrastructure (OneCRL, CRLite,
+CRLSets), and the advisory notes CT logs hold no entries for these intermediates in the
+period — so CT-enforcing clients could not have been attacked. **Bun enforces neither
+revocation nor Certificate Transparency** (there is no SCT checking in the verify path),
+and by default it verifies against its own **bundled** root store, not the OS store.
+Non-browser clients are exactly the population this advisory is about.
+
+### Verified against the source
+
+**1.4.3 is vulnerable.** `blocked_spkis.cpp` does not exist at tag `bun-v1.4.3`, and the
+bundled roots are NSS 3.128 (#42835, 2026-09-16) — so nothing in 1.4.3 can express
+"distrust this intermediate".
+
+**`main` is fixed.** [#46300](https://github.com/oven-sh/bun/pull/46300), merged
+2026-10-21 07:50Z — *"tls: reject chains containing blocked public keys, update root
+certificates to NSS 3.131.1"* — adds a compiled-in SPKI list that fails verification with
+`CERT_REVOKED`, and regenerates the bundle from NSS 3.131.1 (118 certificates, the same
+set as Node's, compared by SHA-256).
+
+The list is exactly **8 hashes**, and the comments name them:
+
+```
+C=US, O=eMudhra Inc, CN=EM DV TLS CA - G3C      C=NL, O=eMudhra BV, CN=EM DV TLS CA - G3B
+C=US, O=eMudhra Inc, CN=EM EV TLS CA - G3C      C=NL, O=eMudhra BV, CN=EM EV TLS CA - G3B
+C=US, O=eMudhra Inc, CN=EM OV TLS CA - G3C      C=NL, O=eMudhra BV, CN=EM OV TLS CA - G3B
+C=US, O=eMudhra Inc, CN=EM OV CS CA - G3C       C=NL, O=eMudhra BV, CN=EM OV CS CA - G3B
+```
+
+Eight intermediates, eight hashes — matching the advisory's count. The check is ported
+from Node's `crypto_context.cc`, uses Node's list, and runs in `us_x509_verify_chain`,
+which every chain Bun verifies passes through.
+
+A blocklist rather than root removal is the correct design: the compromised items are
+*intermediates*, which a root store cannot express. (Some distributions took the blunter
+route of deleting the two chaining roots, `AAA Certificate Services` and `emSign ECC Root
+CA - G3`; Bun's `certdata.txt` on `main` still contains `AAA Certificate Services`, which
+is expected — the blocklist does the work.)
+
+### Severity
+
+`CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N` = **8.7 High**.
+
+`AC:H` and `S:C` because the attacker needs a network position to use a forged certificate,
+and because the failure crosses a trust boundary — every TLS connection Bun makes becomes
+forgeable, including package installs, `fetch`, and the Postgres/Redis/SQL clients. `AC:H`
+rather than `AC:L` is the only thing keeping this out of the 9s: given the keys are
+recoverable by anyone, the attacker's remaining work is purely a MITM position.
+
+It is also an **18-month exposure window** — the keys have been recoverable since April
+2025 — which is why I weight it above the DoS findings despite the higher attack complexity.
+
+### Status and workaround
+
+**Fixed on `main`, in no release.** The advisory's "Bun: pending" is correct for 1.4.3.
+
+On 1.4.3, pass an explicit CA bundle that already excludes the eMudhra roots — your
+distro's updated `ca-certificates` (NSS 3.131.1, Alpine `20261020-r0`, Debian
+`20260816+nmu1`), or curl's 2026-10-20 bundle — via `ca:` or `NODE_EXTRA_CA_CERTS`. Do
+not rely on Bun's bundled store. `NODE_USE_SYSTEM_CA=1` switches to the OS store, but I
+did **not** verify that Bun's system-store path picks up a revocation-based block on every
+platform, so treat that as a maybe.
+
+---
+
+## 17. Everything else worth knowing
 
 The remaining 190 security-tier PRs are hardening and Node-parity work on
 untrusted-input paths. Individually they are Low; collectively they are the reason Bun's
@@ -599,7 +762,7 @@ parser surface is in decent shape. The ones I would not want to lose track of:
 
 ---
 
-## 16. Non-findings — things that look security-relevant and are not
+## 18. Non-findings — things that look security-relevant and are not
 
 Including these so the list can be trusted.
 
@@ -622,7 +785,7 @@ Including these so the list can be trusted.
 
 ---
 
-## 17. The systemic finding
+## 19. The systemic finding
 
 The individual bugs are ordinary. What is not ordinary is the queue they are stuck in.
 
@@ -659,12 +822,12 @@ the dependency. Nobody re-read it. In a queue where 821 PRs arrive per week, a P
 not triaged in a day is a PR whose description is wrong.
 
 **And a release lag that is now the dominant risk.** F1 is already fixed on `main` and
-shipped nowhere. The same is true of the two advisories checked separately: the QPACK
-amplification attack and the eMudhra CA compromise, both published 2026-10-20 and both
-naming Bun as unpatched, were fixed on `main` within a day and are in no release either.
-Three high-profile issues in three days, three patches, zero shipped. The other findings
-in this report are a different problem: they are not fixed anywhere yet, and are still
-waiting on the PRs above. See [`04-advisory-check.md`](04-advisory-check.md).
+shipped nowhere — and so are F11 and F12, the two advisories published on 2026-10-20 that
+named Bun as unpatched. All three were fixed on `main` within a day of publication. Three
+high-profile issues in three days, three patches, zero shipped. The other findings in this
+report are a different problem: they are not fixed anywhere yet, and are still waiting on
+the PRs above. [`04-advisory-check.md`](04-advisory-check.md) has the reproduction commands
+for F11 and F12.
 
 **None of this is a criticism of the individual PRs.** They are, on the whole,
 unusually good: measurements against Node, tables of before/after behaviour, honest
@@ -674,13 +837,12 @@ That is better than most human-written security PRs. The problem is volume.
 
 ---
 
-## 18. What I would do, in order
+## 20. What I would do, in order
 
 1. **Ship a 1.4.4 cut from `main` today.** Three separate remote issues are already fixed
    on `main` and in **no release**: brotli v1.2.1 for CVE-2026-111497 (F1), the HTTP/3
-   QPACK header limits (#46392), and the eMudhra CA blocklist (#46300). The release
-   channel is the bottleneck, not the code. See
-   [`04-advisory-check.md`](04-advisory-check.md). Then close #46351 as superseded, or
+   QPACK header limits (#46392, F11), and the eMudhra CA blocklist (#46300, F12). The
+   release channel is the bottleneck, not the code. Then close #46351 as superseded, or
    re-point it at the 1.4 branch.
 2. **Merge #42646** (F2). Two lines of dependency pin, tests included, still unfixed on
    `main`. Nothing else in the queue has this ratio of impact to effort.

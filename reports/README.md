@@ -11,9 +11,9 @@
 | File | What it is |
 |---|---|
 | **[01-overview.md](01-overview.md)** | The shape of the queue: who writes it, what kind of work it is, how old it is. Start here. |
-| **[02-security-severity.md](02-security-severity.md)** | **The deep dive.** Ten findings rated with CVSS 3.1 — reach, attacker model, impact, and for six of them a proof of concept I ran against Bun 1.4.0 — plus a hardening bundle that does not fit the shape. |
+| **[02-security-severity.md](02-security-severity.md)** | **The deep dive.** Twelve findings rated with CVSS 3.1 — reach, attacker model, impact, and for six of them a proof of concept I ran against Bun 1.4.0 — plus a hardening bundle that does not fit the shape. |
 | **[03-security-triage.md](03-security-triage.md)** | All 202 security-relevant PRs in one table, each with a rating and a one-line verdict. Includes the ones I decided are *not* vulnerabilities. |
-| **[04-advisory-check.md](04-advisory-check.md)** | Two named public advisories checked against Bun: the FoxIO QPACK amplification attack and the eMudhra intermediate CA compromise. Both are fixed on `main` and in **no release**. |
+| **[04-advisory-check.md](04-advisory-check.md)** | The detailed appendix for F11 and F12 — the FoxIO QPACK amplification attack and the eMudhra intermediate CA compromise — with the reproduction commands. Both are fixed on `main` and in **no release**. |
 | **[inventory/](inventory/)** | All 5,652 PRs, one row each, grouped by what the PR is for. Every row carries the author's own description of the change. |
 | **[prs.csv](prs.csv)** | The same classification, machine-readable. |
 
@@ -23,7 +23,7 @@
 agent. 77.6% of all open PRs are fixes, 6.7% features, 3.3% docs, 0.9% performance, 0.7%
 security. Median PR age: 54 days.
 
-**Security.** 202 PRs touch a security-relevant surface. Eleven are worth acting on:
+**Security.** 202 PRs touch a security-relevant surface. Thirteen findings are worth acting on:
 
 | | PR | What | Severity |
 |---|---|---|---|
@@ -38,6 +38,8 @@ security. Median PR age: 54 days.
 | 9 | [#45668](https://github.com/oven-sh/bun/pull/45668) + [#46143](https://github.com/oven-sh/bun/pull/46143) | `bun audit` reports "clean" when it is not | control bypass |
 | 10 | [#42411](https://github.com/oven-sh/bun/pull/42411) | HTTP/2 client `originSet` grows unbounded | **6.5 Med** |
 | 11 | [#33191](https://github.com/oven-sh/bun/pull/33191) | node:http/http2 hardening bundle (unvalidated h2 pseudo-headers, failures reported as `200`) | varies |
+| 12 | [#46392](https://github.com/oven-sh/bun/pull/46392) | QPACK header amplification, HTTP/3 — one connection OOMs the server (**merged, unreleased**) | **7.5 High** |
+| 13 | [#46300](https://github.com/oven-sh/bun/pull/46300) | eMudhra intermediate CA compromise — Bun distrusts none of the 8 (**merged, unreleased**) | **8.7 High** |
 
 Severity here is the CVSS score. The triage file uses an **action** rating, which is
 harsher at the top: #46351 is "Critical" there — remote, unauthenticated memory corruption,
@@ -61,10 +63,11 @@ only 4 are mergeable and clean; the median security PR has waited 68 days. Detec
 working — several findings say *"an audit found this, no user reported it"*. Delivery is
 not.
 
-**Two public advisories, checked separately.** The FoxIO QPACK amplification attack and
-the eMudhra CA compromise both list Bun as unpatched. Both are *correct about the
-release*: each was fixed on `main` within a day of publication (#46392, #46300) and
-neither fix is in 1.4.3. See [04-advisory-check.md](04-advisory-check.md).
+**Three fixes on `main`, zero released.** F1 (brotli, CVE-2026-111497), F11 (QPACK
+amplification) and F12 (eMudhra CA) are all fixed on `main` and all absent from 1.4.3 —
+in F11 and F12's case because each advisory, published 2026-10-20, was patched within a
+day and no release has followed. The release channel, not the review queue, is now the
+binding constraint. See [04-advisory-check.md](04-advisory-check.md).
 
 ## Method, and its limits
 

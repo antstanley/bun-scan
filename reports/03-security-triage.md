@@ -244,3 +244,21 @@ Every open PR whose title or description touches a vulnerability class, a CVE/GH
 | blocked | 53 |
 | clean | 4 |
 | unstable | 1 |
+
+## Not in this table: fixes that had already merged
+
+This triage covers **open** pull requests. Three of the issues in the main report were
+fixed on `main` before the snapshot, so they never appear as candidates — and since none of
+them is in a release, they matter more than most of the rows above.
+
+| Issue | PR | Merged | In 1.4.3? | Report |
+|---|---|---|---|---|
+| QPACK header amplification (HTTP/3) | [#46392](https://github.com/oven-sh/bun/pull/46392) + [#46436](https://github.com/oven-sh/bun/pull/46436) | 2026-10-22 | **No** | F11 |
+| eMudhra intermediate CA compromise | [#46300](https://github.com/oven-sh/bun/pull/46300) | 2026-10-21 | **No** | F12 |
+| brotli CVE-2026-111497 | dependency bump to brotli v1.2.1 | 2026-10-21 | **No** | F1 |
+
+The brotli *fix* is the dependency bump; [#46351](https://github.com/oven-sh/bun/pull/46351),
+the PR that documents it, is still open and is row 1 of the table above.
+
+See [`02-security-severity.md`](02-security-severity.md) for the findings and
+[`04-advisory-check.md`](04-advisory-check.md) for the reproduction commands.
