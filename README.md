@@ -19,7 +19,7 @@ what each one is for, and how bad the security ones are.
 | Security PRs that no longer apply to `main` | **84 (42%)** |
 | Security PRs mergeable and clean | **4** |
 
-**Twelve findings.** Two matter more than the rest:
+**Fifteen findings.** Two matter more than the rest:
 
 1. **brotli decoder OOB write, CVE-2026-111497** — remote, unauthenticated, reachable
    through `fetch()` on any `Content-Encoding: br` response. Every released Bun is
@@ -40,10 +40,11 @@ all patched on `main` within a day, and none is in a release.
 |---|---|
 | **[reports/README.md](reports/README.md)** | The index and the full summary |
 | [reports/01-overview.md](reports/01-overview.md) | The shape of the queue: who writes it, what it is, how old |
-| [reports/02-security-severity.md](reports/02-security-severity.md) | **The deep dive** — 12 findings, CVSS 3.1, 6 verified with proofs of concept |
+| [reports/02-security-severity.md](reports/02-security-severity.md) | **The deep dive** — 15 findings, CVSS 3.1, 6 verified with proofs of concept |
 | [reports/03-security-triage.md](reports/03-security-triage.md) | All 202 security-relevant PRs, rated, including the non-findings |
 | [reports/04-advisory-check.md](reports/04-advisory-check.md) | Two public advisories checked against Bun |
 | [reports/05-next-release.md](reports/05-next-release.md) | What is merged but not yet released — the 1.4.4 security scan |
+| [reports/06-release-gap.md](reports/06-release-gap.md) | **What 1.4.3 is exposed to and what upgrading fixes** |
 | [reports/inventory/](reports/inventory/) | All 5,652 PRs, one row each, grouped by purpose |
 | [reports/prs.csv](reports/prs.csv) | The same classification, machine-readable |
 

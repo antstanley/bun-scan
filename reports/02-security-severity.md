@@ -23,10 +23,13 @@
 14. [F10 · HTTP/2 client `originSet` grows without bound](#f10--http2-client-originset-grows-without-bound)
 15. [F11 · QPACK header amplification — HTTP/3](#f11--qpack-header-amplification--http3-foxio)
 16. [F12 · eMudhra intermediate CA compromise](#f12--emudhra-intermediate-ca-compromise)
-17. [Everything else worth knowing](#17-everything-else-worth-knowing)
-18. [Non-findings — things that look security-relevant and are not](#18-non-findings--things-that-look-security-relevant-and-are-not)
-19. [The systemic finding](#19-the-systemic-finding)
-20. [What I would do, in order](#20-what-i-would-do-in-order)
+17. [F13 · TLS certificate-validation bypasses](#f13--tls-certificate-validation-bypasses-nine-of-them)
+18. [F14 · Postgres client never verified the hostname](#f14--the-postgres-client-never-verified-the-hostname)
+19. [F15 · WebSocket masked-frame desync](#f15--websocket-parsed-a-masked-server-frame-with-the-mask-key-as-payload)
+20. [Everything else worth knowing](#20-everything-else-worth-knowing)
+21. [Non-findings — things that look security-relevant and are not](#21-non-findings--things-that-look-security-relevant-and-are-not)
+22. [The systemic finding](#22-the-systemic-finding)
+23. [What I would do, in order](#23-what-i-would-do-in-order)
 
 ---
 
@@ -52,9 +55,12 @@ polynomial-time `URLPattern`, an HTTP/2 CONTINUATION flood, a symlink-following 
 macOS, WASI hostcall bounds checking, a predictable `/tmp` path in `Bun.cron()`, and two
 ways `bun audit` reports "clean" when it is not.
 
-**Two more findings came from outside the queue.** The FoxIO QPACK amplification attack
-(F11) and the eMudhra CA compromise (F12) were both published on 2026-10-20 naming Bun as
-unpatched. Both are real, both are fixed on `main`, and both are in **no release**.
+**Five more findings came from outside the queue.** The FoxIO QPACK amplification attack
+(F11) and the eMudhra CA compromise (F12) were published on 2026-10-20 naming Bun as
+unpatched. Scanning the 169 PRs merged since 1.4.3 turned up three more that were never
+filed as advisories: nine TLS certificate-validation bypasses (F13), a Postgres client that
+never checked the hostname (F14), and a WebSocket frame desync (F15). All five are live in
+1.4.3 and all five are fixed in the next release.
 
 The most striking finding is structural: **84 of the 202 security PRs no longer apply to
 `main`**, four are mergeable and clean, the median security PR has been open for
@@ -143,6 +149,9 @@ because that is where Bun is used.
 | F10 | [#42411](https://github.com/oven-sh/bun/pull/42411) | HTTP/2 client `originSet` unbounded | CWE-400 | **6.5 Med** | **Yes** | **Yes** | author-reported |
 | F11 | [#46392](https://github.com/oven-sh/bun/pull/46392) + [#46436](https://github.com/oven-sh/bun/pull/46436) | QPACK header amplification, HTTP/3 (FoxIO) | CWE-400 | **7.5 High** | No (fixed 10-22) | **Yes** | verified |
 | F12 | [#46300](https://github.com/oven-sh/bun/pull/46300) | eMudhra intermediate CA compromise — no distrust list | CWE-295 | **8.7 High** | No (fixed 10-21) | **Yes** | verified |
+| F13 | [#44618](https://github.com/oven-sh/bun/pull/44618) | TLS certificate-validation bypasses (9) | CWE-295/319/287 | **7.4 High** | No (fixed 10-10) | **Yes** | confirmed |
+| F14 | [#45304](https://github.com/oven-sh/bun/pull/45304) | Postgres client never checked the hostname | CWE-295 | **7.4 High** | No (fixed 10-17) | **Yes** | confirmed |
+| F15 | [#45223](https://github.com/oven-sh/bun/pull/45223) | WebSocket masked-frame desync | CWE-444 | **5.3 Med** | No (fixed 10-17) | **Yes** | confirmed |
 | — | [#33191](https://github.com/oven-sh/bun/pull/33191) | node:http/http2 hardening bundle | mixed | varies | partially | — | confirmed |
 
 ---
@@ -737,7 +746,90 @@ platform, so treat that as a maybe.
 
 ---
 
-## 17. Everything else worth knowing
+## F13 · TLS certificate-validation bypasses (nine of them)
+
+> **PR [#44618](https://github.com/oven-sh/bun/pull/44618)** · merged 2026-10-10 20:53Z · **15 hours after the 1.4.3 tag** · **CVSS 7.4 High (worst item)**
+
+The largest security change in this report was not filed as one. It is titled *"tls:
+consolidate the open TLS fixes (both engines, node:tls, node:https, WebSocket, SQL)"* and
+merged the evening of the 1.4.3 release, so **every issue below is live in 1.4.3 and fixed
+in the next release**.
+
+The PR reproduced each on `main` before changing it, and against Node v26.3.0 for `node:*`
+behaviour. These are the certificate-validation ones:
+
+| Issue in 1.4.3 | CWE | Why it matters |
+|---|---|---|
+| `WebSocket` never calls `tls.checkServerIdentity`, ignores `tls.serverName` | 295 | The client accepts a certificate for **any** host — a MITM with any valid cert |
+| `NODE_TLS_REJECT_UNAUTHORIZED=0` turns off a **server's** client-certificate enforcement | 295 | A *client-side* env var disables mutual TLS; this variable is common in CI and dev |
+| `tls: [...]` passed to `Bun.listen` / `Bun.connect` is **plain TCP** | 319 | Code believes it is speaking TLS and isn't |
+| `https.createServer()` without a usable key/cert answers **plain HTTP** | 319 | A misconfigured server silently serves cleartext |
+| `PGSSLMODE=verify-*` is lost next to a `TLS_*` URL variable | 295 | Downgrades `verify-full` for a Postgres connection |
+| `secureConnect` fires `authorized === true` for a peer that failed the key proof | 287 | An authentication result that is simply wrong |
+| Client certificate is disclosed to a server that is then refused | 200 | A hostile server can harvest a client certificate it should never see |
+| An mTLS server never sees `crl`, so a revoked client is `authorized` | 299 | Revocation is effectively unimplemented server-side |
+| Requests with different client certs or CAs share one `https.Agent` socket and session | 488 | Credentials cross between logical connections |
+
+The PR also carries memory-safety and availability fixes in the same areas: a
+use-after-free from `destroy()` inside `ALPNCallback` (ASAN), a SIGABRT in `fetch` through
+an environment proxy, **16 KiB silently lost from a TLS `write()`**, and a quadratic
+Duplex path (32 MB: 11.75 s → 0.39 s).
+
+**Severity:** I score the group **7.4 High** on its worst item
+(`AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N`) — `AC:H` because each needs a network position or
+a specific configuration. The `NODE_TLS_REJECT_UNAUTHORIZED=0` item is arguably worse in
+practice, because it needs no attacker position at all: a server that believes it requires
+client certificates stops requiring them.
+
+**Status: fixed in 1.4.4, live in 1.4.3.**
+
+---
+
+## F14 · The Postgres client never verified the hostname
+
+> **PR [#45304](https://github.com/oven-sh/bun/pull/45304)** · merged 2026-10-17 · **CVSS 7.4 High**
+
+> `tls.checkServerIdentity` was never called → called, and it raises an `sslmode` below
+> `verify-ca` to `verify-full`, so a self-signed certificate without `ca` fails, as in `pg`
+> and `postgres.js`
+
+Bun's Postgres client validated the certificate chain but **never checked that the
+certificate was issued for the host it connected to**. A valid certificate for
+`attacker.example`, from any CA in the store, satisfied a connection to `db.internal` over
+TLS. The same PR adds SCRAM-SHA-256-PLUS with `channelBinding: disable|prefer|require`,
+which binds the authentication exchange to the TLS channel.
+
+**Severity:** `AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N` = **7.4 High** — `S:C` because a
+compromised database connection crosses from network into application data. `AC:H` for the
+MITM position.
+
+**Status: fixed in 1.4.4, live in 1.4.3.**
+
+---
+
+## F15 · WebSocket parsed a masked server frame with the mask key as payload
+
+> **PR [#45223](https://github.com/oven-sh/bun/pull/45223)** · merged 2026-10-17 · **CVSS 5.3 Medium**
+
+> A masked Ping, Close or continuation frame from a server was parsed with the mask key as
+> payload, and the connection continued out of sync. Any masked frame now fails the
+> connection.
+
+Servers must not mask frames; Bun accepted one and then treated the 4-byte mask key as the
+first bytes of the payload, leaving the parser misaligned for everything that followed. In
+a deployment with a proxy in front, a desynchronized parser is the precondition for
+request smuggling. The same PR fixes an availability bug: control frames that nothing
+listened for were queued for a later listener, so **a flood of pings grew memory to
+gigabytes**.
+
+**Severity:** `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N` = **5.3** — impact depends on the
+proxy topology, so I am scoring the desync itself rather than a specific smuggling exploit.
+
+**Status: fixed in 1.4.4, live in 1.4.3.**
+
+---
+
+## 20. Everything else worth knowing
 
 The remaining 190 security-tier PRs are hardening and Node-parity work on
 untrusted-input paths. Individually they are Low; collectively they are the reason Bun's
@@ -763,7 +855,7 @@ parser surface is in decent shape. The ones I would not want to lose track of:
 
 ---
 
-## 18. Non-findings — things that look security-relevant and are not
+## 21. Non-findings — things that look security-relevant and are not
 
 Including these so the list can be trusted.
 
@@ -786,7 +878,7 @@ Including these so the list can be trusted.
 
 ---
 
-## 19. The systemic finding
+## 22. The systemic finding
 
 The individual bugs are ordinary. What is not ordinary is the queue they are stuck in.
 
@@ -838,7 +930,7 @@ That is better than most human-written security PRs. The problem is volume.
 
 ---
 
-## 20. What I would do, in order
+## 23. What I would do, in order
 
 1. **Ship a 1.4.4 cut from `main` today.** Three separate remote issues are already fixed
    on `main` and in **no release**: brotli v1.2.1 for CVE-2026-111497 (F1), the HTTP/3
