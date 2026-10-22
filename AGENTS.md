@@ -82,7 +82,7 @@ patched".
 gh api repos/oven-sh/bun/releases/latest -q '.tag_name + "  " + .published_at'
 
 # 2. what is on main that is not in it?
-gh api "repos/oven-sh/bun/compare/bun-v1.4.3...main" > data/next/compare.json
+gh api "repos/oven-sh/bun/compare/bun-v1.4.4...main" > data/next/compare.json
 
 # 3. extract PR numbers from commit subjects, then fetch each PR
 ./scripts/fetch_next_release.sh
@@ -102,9 +102,16 @@ json.dump(prs, open('data/next/classified.json','w'), indent=1)
 "
 ```
 
-When a new release ships, update the tag in every place the reports mention it —
-`bun-v1.4.3` in the commands above, and the "Current release / Next release" lines in
+When a new release ships, update the tag in every place the reports mention it — the
+`bun-vX.Y.Z` in the commands above, and the "Previous / Current release" lines in
 `reports/05-next-release.md` and `reports/06-release-gap.md`.
+
+**Check the cut point first.** `compare/bun-vTAG...main` with `ahead=0, behind=0` means the
+tag *is* `main`'s head, so nothing you scrolled through was left out. If it is not, some of
+what you listed never shipped — diff it before claiming anything is in the release.
+
+**Verify at the tag, not on `main`.** `main` moves; the tag does not. Every headline claim
+in `reports/05-next-release.md` §8 is a `gh api ...?ref=bun-vX.Y.Z` check for this reason.
 
 ---
 

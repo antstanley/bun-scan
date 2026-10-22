@@ -1,8 +1,14 @@
-# What ships in the next release (1.4.4): security scan
+# What shipped in 1.4.4: verified security scan
 
-**Window:** `bun-v1.4.3` (2026-10-10 05:24Z) → `main` (2026-10-22 ~09:30Z)
+**Window:** `bun-v1.4.3` (2026-10-10 05:24Z) → `bun-v1.4.4` (released 2026-10-22 10:11Z)
 **Diff:** 172 commits · **171 merged PRs** · 1 direct commit (`Bump`, sets `package.json` to **1.4.4**)
-**Question:** which security fixes are merged but not yet released?
+**Question:** which security fixes are in 1.4.4?
+
+> **Verified, not predicted.** This report was first written against `main` before the
+> release. It has since been checked against the tag: `compare/bun-v1.4.4...main` is
+> **identical** (0 ahead, 0 behind), and the tag's last commit is `38afee6c8` — #46456,
+> the final PR in the window. Every item below was additionally confirmed in the files at
+> `bun-v1.4.4`, not just inferred from `main`. See §8.
 
 ---
 
@@ -169,7 +175,7 @@ carry them wholesale. Anyone tracking the queue by PR number will overstate what
 
 ## 5. What is **not** in 1.4.4
 
-I checked each finding from the main report against the 169 PRs and against the reference
+I checked each finding from the main report against the 171 PRs and against the reference
 lists inside the two hardening bundles. These are untouched:
 
 | Finding | Why it is not in this release |
@@ -184,8 +190,8 @@ lists inside the two hardening bundles. These are untouched:
 | **F9 · `bun audit` fails open** | #45668 / #46143 open; the install consolidation #44968 did not take them |
 | **F10 · HTTP/2 client `originSet` unbounded** | #42411 open |
 
-So 1.4.4 closes the two advisories and a lot of TLS work, and still ships the HTMLRewriter
-XSS and the five DoS-class findings.
+So 1.4.4 closed the two advisories and a lot of TLS work, and still shipped the
+HTMLRewriter XSS and the five DoS-class findings — all five confirmed absent at the tag.
 
 ---
 
@@ -213,7 +219,7 @@ show: the TLS and SQL consolidation PRs contain certificate-validation bypasses 
 like embargoed material but shipped as refactors. If they had been filed as CVEs, 1.4.4
 would be a security release by any definition.
 
-Two things I would raise before shipping:
+Two things I would raise about this release:
 
 1. **Confirm the `emSign Root CA - G1` revert was intended.** It is the only place where
    two PRs undid each other, and the mechanism that caused it (`%distrusted_labels`) was
@@ -221,7 +227,7 @@ Two things I would raise before shipping:
 2. **F2 is still live.** The HTMLRewriter comment setter is the one finding in the main
    report that is remotely exploitable, unfixed on `main`, and *not* picked up by the
    consolidation sweep. Merging #43266 — or cherry-picking the one lol-html commit as
-   #42646 does — would close it.
+   #42646 does — would still close it in 1.4.5.
 
 ---
 
@@ -230,3 +236,18 @@ extracted from commit subjects (171/172 mapped; 1 direct commit), each PR fetche
 classified, then read by hand. Reference lists inside #46021 and #46270 were parsed to
 detect absorbed PRs. Root-bundle claims verified against `root_certs.txt`,
 `generate-root-certs.pl` and `blocked_spkis.cpp` on `main`.*
+
+---
+
+## 8. Verification against the tag
+
+Each headline claim was re-checked in the files at `bun-v1.4.4`, not just in `main`:
+
+| Claim | Check at `bun-v1.4.4` | Result |
+|---|---|---|
+| brotli is v1.2.1 (F1 closed) | `scripts/build/deps/brotli.ts` → `BROTLI_COMMIT` | `db24a98a…` **// v1.2.1** |
+| QPACK limits enforced (F11 closed) | `packages/bun-usockets/src/quic.c` → `h->size +=`, `max_fields` | 6 matches — cumulative budget and 200-field cap present |
+| eMudhra intermediates blocked (F12 closed) | `src/crypto/blocked_spkis.cpp` | present, **8** eMudhra SPKIs |
+| Root bundle state | `root_certs.txt` | **118** certs; `emSign Root CA - G1` **present** (the regression in §3) |
+| F2 still open | `scripts/build/deps/lolhtml.ts` → `LOLHTML_COMMIT` | still `725ce499…` — **unchanged**, so the comment-setter XSS ships |
+| Release cut point | `compare/bun-v1.4.4...main` | **identical** — nothing merged after the tag was missed |

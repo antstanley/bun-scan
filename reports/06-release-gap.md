@@ -1,30 +1,35 @@
-# The release gap: what Bun 1.4.3 is exposed to, and what upgrading fixes
+# The release gap: what 1.4.3 was exposed to, what 1.4.4 fixed, and what remains
 
-**Current release:** 1.4.3 (2026-10-10)
-**Next release:** 1.4.4 (`main` is already versioned 1.4.4)
-**Question:** what is a 1.4.3 user exposed to, and which of it does an upgrade fix?
+**Previous release:** 1.4.3 (2026-10-10) — the version analysed here
+**Current release:** **1.4.4** (2026-10-22 10:11Z) — verified against the tag
+**Question:** what was a 1.4.3 user exposed to, what did upgrading fix, and what remains?
 
 ---
 
 ## The answer
 
-Bun 1.4.3 has **27 enumerated security issues** — one row of which stands for about 300
-crash fixes — that are fixed on `main` and not in the release — including nine certificate-validation bypasses that were never filed as
-advisories. After upgrading, **nine findings from this evaluation remain unfixed**
-(F2–F10), one of which is a remotely reachable XSS.
+Bun 1.4.3 had **27 enumerated security issues** — one row of which stands for about 300
+crash fixes — including nine certificate-validation bypasses that were never filed as
+advisories. **All 27 are fixed in 1.4.4**, which shipped on 2026-10-22. This report was
+written against `main` before the release and has since been checked against the tag: the
+two trees are identical, and each headline fix was confirmed in the files at `bun-v1.4.4`
+(see [`05-next-release.md`](05-next-release.md#8-verification-against-the-tag)).
+
+**Nine findings remain unfixed after upgrading** (F2–F10), one of which is a remotely
+reachable XSS.
 
 | | Count | Worst severity |
 |---|---|---|
-| Vulnerable in 1.4.3, **fixed** in 1.4.4 | **27** (incl. ~300 crash fixes) | 8.7 High |
-| Vulnerable in 1.4.3, **not fixed anywhere** | **9** (F2–F10) | 7.5 High (plus an XSS) |
+| Vulnerable in 1.4.3, **fixed in 1.4.4** (shipped) | **27** (incl. ~300 crash fixes) | 8.7 High |
+| Still vulnerable in 1.4.4, **fixed nowhere** | **9** (F2–F10) | 7.5 High (plus an XSS) |
 
 Three of the fixed items are published advisories. The rest were found by scanning the 171
-PRs merged since the release tag — most of them inside consolidation PRs whose titles say
+PRs merged between the two tags — most of them inside consolidation PRs whose titles say
 "consolidate", "WebSocket" and "sql".
 
 ---
 
-## Part A — vulnerable in 1.4.3, fixed in 1.4.4
+## Part A — was vulnerable in 1.4.3, fixed in 1.4.4
 
 Ordered by severity. "Basis" says how I know 1.4.3 is affected.
 
@@ -92,7 +97,7 @@ to 1.4.4. Nothing else in this evaluation comes close.
 
 ---
 
-## Part B — not fixed anywhere (residual risk after upgrading)
+## Part B — still open in 1.4.4 (residual risk after upgrading)
 
 These stay broken whether or not you upgrade. From the main report:
 
@@ -146,9 +151,11 @@ not by decision. Details in [`05-next-release.md`](05-next-release.md#3-finding-
 
 ## Bottom line
 
-1. **Upgrade to 1.4.4 as soon as it ships.** It closes a remote memory-corruption bug, a
+1. **Upgrade to 1.4.4** (shipped 2026-10-22). It closes a remote memory-corruption bug, a
    remote DoS, a CA-trust gap, nine certificate-validation bypasses, a Postgres MITM, and
-   several hundred crash paths. Nothing else in this report is close to that.
+   several hundred crash paths. Nothing else in this report is close to that. Note the
+   release page carries **no changelog** — only a link to the blog and a contributor list —
+   so none of this is visible from the release notes.
 2. **F2 stays open.** If you serve user-controlled text through `HTMLRewriter` as a
    comment, you are still injectable after upgrading.
 3. **F4/F5 stay open.** If you route attacker-controlled paths through `URLPattern`, or

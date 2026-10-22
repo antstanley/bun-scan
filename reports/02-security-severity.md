@@ -57,10 +57,10 @@ ways `bun audit` reports "clean" when it is not.
 
 **Five more findings came from outside the queue.** The FoxIO QPACK amplification attack
 (F11) and the eMudhra CA compromise (F12) were published on 2026-10-20 naming Bun as
-unpatched. Scanning the 169 PRs merged since 1.4.3 turned up three more that were never
-filed as advisories: nine TLS certificate-validation bypasses (F13), a Postgres client that
-never checked the hostname (F14), and a WebSocket frame desync (F15). All five are live in
-1.4.3 and all five are fixed in the next release.
+unpatched. Scanning the 171 PRs merged between the 1.4.3 and 1.4.4 tags turned up three
+more that were never filed as advisories: nine TLS certificate-validation bypasses (F13), a
+Postgres client that never checked the hostname (F14), and a WebSocket frame desync (F15).
+All five were live in 1.4.3 and **all five are fixed in 1.4.4**, verified at the tag.
 
 The most striking finding is structural: **84 of the 202 security PRs no longer apply to
 `main`**, four are mergeable and clean, the median security PR has been open for
@@ -236,7 +236,8 @@ embargoed security issue.
 The vulnerability is real, remote and shipped. **The correct action is not to merge this
 PR** — it would apply a patch for a fix that is already in the pinned version — **but to
 get v1.2.1 (or the patch) into a 1.4.x release.** As of this snapshot, `bun upgrade` to
-1.4.3 leaves a user exploitable, and nothing in the release channel says so.
+1.4.3 left a user exploitable, and the release notes said nothing about it. **1.4.4,
+released 2026-10-22, carries the fix** (verified: `bun-tag v1.4.4` pins brotli v1.2.1).
 
 The PR is `blocked` on CI: per its own description it sits on a fork branch and needs a
 maintainer to unblock Buildkite. It has one comment and no review after a day.
@@ -658,8 +659,9 @@ outcome is an OOM kill rather than a slowdown.
 
 ### Status
 
-**Fixed on `main`, in no release.** On 1.4.3, FoxIO's mitigation is the right one: do not
-expose an HTTP/3 server until a release contains #46392.
+**Fixed in 1.4.4** (verified at the tag: `quic.c` carries the cumulative budget). 1.4.3
+was exposed from 2026-10-10 to 2026-10-22; FoxIO's mitigation — do not expose an HTTP/3
+server — was the only option in that window.
 
 ---
 
@@ -735,7 +737,8 @@ It is also an **18-month exposure window** — the keys have been recoverable si
 
 ### Status and workaround
 
-**Fixed on `main`, in no release.** The advisory's "Bun: pending" is correct for 1.4.3.
+**Fixed in 1.4.4** (verified at the tag: `blocked_spkis.cpp` carries all 8 eMudhra SPKIs).
+The advisory's "Bun: pending" was correct for 1.4.3.
 
 On 1.4.3, pass an explicit CA bundle that already excludes the eMudhra roots — your
 distro's updated `ca-certificates` (NSS 3.131.1, Alpine `20261020-r0`, Debian
@@ -752,8 +755,8 @@ platform, so treat that as a maybe.
 
 The largest security change in this report was not filed as one. It is titled *"tls:
 consolidate the open TLS fixes (both engines, node:tls, node:https, WebSocket, SQL)"* and
-merged the evening of the 1.4.3 release, so **every issue below is live in 1.4.3 and fixed
-in the next release**.
+merged the evening of the 1.4.3 release, so **every issue below was live in 1.4.3 and is
+fixed in 1.4.4** (verified at the tag).
 
 The PR reproduced each on `main` before changing it, and against Node v26.3.0 for `node:*`
 behaviour. These are the certificate-validation ones:
@@ -781,7 +784,7 @@ a specific configuration. The `NODE_TLS_REJECT_UNAUTHORIZED=0` item is arguably 
 practice, because it needs no attacker position at all: a server that believes it requires
 client certificates stops requiring them.
 
-**Status: fixed in 1.4.4, live in 1.4.3.**
+**Status: live in 1.4.3; fixed in 1.4.4** (shipped 2026-10-22, verified at the tag).
 
 ---
 
@@ -803,7 +806,7 @@ which binds the authentication exchange to the TLS channel.
 compromised database connection crosses from network into application data. `AC:H` for the
 MITM position.
 
-**Status: fixed in 1.4.4, live in 1.4.3.**
+**Status: live in 1.4.3; fixed in 1.4.4** (shipped 2026-10-22, verified at the tag).
 
 ---
 
@@ -825,7 +828,7 @@ gigabytes**.
 **Severity:** `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N` = **5.3** — impact depends on the
 proxy topology, so I am scoring the desync itself rather than a specific smuggling exploit.
 
-**Status: fixed in 1.4.4, live in 1.4.3.**
+**Status: live in 1.4.3; fixed in 1.4.4** (shipped 2026-10-22, verified at the tag).
 
 ---
 
@@ -914,12 +917,12 @@ premise ("main builds v1.2.0") expired within hours of opening, because someone 
 the dependency. Nobody re-read it. In a queue where 856 PRs arrive per week, a PR that is
 not triaged in a day is a PR whose description is wrong.
 
-**And a release lag that is now the dominant risk.** F1 is already fixed on `main` and
-shipped nowhere — and so are F11 and F12, the two advisories published on 2026-10-20 that
-named Bun as unpatched. All three were fixed on `main` within a day of publication. Three
-high-profile issues in three days, three patches, zero shipped. The other findings in this
-report are a different problem: they are not fixed anywhere yet, and are still waiting on
-the PRs above. [`04-advisory-check.md`](04-advisory-check.md) has the reproduction commands
+**And a release lag that was, briefly, the dominant risk.** F1, F11 and F12 were all fixed
+on `main` within a day of publication and then sat unreleased for up to twelve days — F1
+for a day, F12 for 26 hours, F11 for two. Three high-profile issues in three days, three
+patches, zero shipped at the time of writing. **1.4.4 closed the gap on 2026-10-22.** The
+remaining findings are a different problem: they are not fixed anywhere yet, and are still
+waiting on the PRs above. [`04-advisory-check.md`](04-advisory-check.md) has the reproduction commands
 for F11 and F12.
 
 **None of this is a criticism of the individual PRs.** They are, on the whole,
@@ -932,10 +935,9 @@ That is better than most human-written security PRs. The problem is volume.
 
 ## 23. What I would do, in order
 
-1. **Ship a 1.4.4 cut from `main` today.** Three separate remote issues are already fixed
-   on `main` and in **no release**: brotli v1.2.1 for CVE-2026-111497 (F1), the HTTP/3
-   QPACK header limits (#46392, F11), and the eMudhra CA blocklist (#46300, F12). The
-   release channel is the bottleneck, not the code. Then close #46351 as superseded, or
+1. ~~**Ship a 1.4.4 cut from `main`.**~~ **Done — 1.4.4 shipped on 2026-10-22** with brotli
+   v1.2.1 (F1), the HTTP/3 QPACK limits (F11) and the eMudhra blocklist (F12), all
+   verified at the tag. What remains from this item: close #46351 as superseded, or
    re-point it at the 1.4 branch.
 2. **Merge #42646** (F2). Two lines of dependency pin, tests included, still unfixed on
    `main`. Nothing else in the queue has this ratio of impact to effort.

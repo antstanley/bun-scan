@@ -28,11 +28,13 @@ what each one is for, and how bad the security ones are.
    `--!>`, `>`, `->` are not, so injected markup goes live. Reproduced XSS. **Not fixed
    anywhere.**
 
-Plus a structural result: detection and patching work; **shipping does not**. Three
+Plus a structural result: detection and patching work; **shipping lagged**. Three
 high-profile issues in three days — brotli, the [FoxIO QPACK amplification
 attack](https://foxio.io/blog/header-accordions-qpack-amplification-attacks-against-http-3-servers)
 (F11), and the [eMudhra CA compromise](https://emudhra.we-have-a-problem.com/) (F12) — were
-all patched on `main` within a day, and none is in a release.
+patched on `main` within a day and sat unreleased for up to twelve days. **1.4.4 shipped on
+2026-10-22 and contains all three**, plus 24 further issues that were never filed as
+advisories.
 
 ## Read
 
@@ -43,8 +45,8 @@ all patched on `main` within a day, and none is in a release.
 | [reports/02-security-severity.md](reports/02-security-severity.md) | **The deep dive** — 15 findings, CVSS 3.1, 6 verified with proofs of concept |
 | [reports/03-security-triage.md](reports/03-security-triage.md) | All 202 security-relevant PRs, rated, including the non-findings |
 | [reports/04-advisory-check.md](reports/04-advisory-check.md) | Two public advisories checked against Bun |
-| [reports/05-next-release.md](reports/05-next-release.md) | What is merged but not yet released — the 1.4.4 security scan |
-| [reports/06-release-gap.md](reports/06-release-gap.md) | **What 1.4.3 is exposed to and what upgrading fixes** |
+| [reports/05-next-release.md](reports/05-next-release.md) | What shipped in 1.4.4 — verified against the tag |
+| [reports/06-release-gap.md](reports/06-release-gap.md) | **What 1.4.3 was exposed to, what 1.4.4 fixed, and what remains** |
 | [reports/inventory/](reports/inventory/) | All 5,653 PRs, one row each, grouped by purpose |
 | [reports/prs.csv](reports/prs.csv) | The same classification, machine-readable |
 

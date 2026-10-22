@@ -5,9 +5,10 @@
 * [Header Accordions: QPACK amplification attacks against HTTP/3 servers](https://foxio.io/blog/header-accordions-qpack-amplification-attacks-against-http-3-servers) (FoxIO, 2026-10-20)
 * [emudhra.we-have-a-problem.com](https://emudhra.we-have-a-problem.com/) (eMudhra intermediate CA compromise, 2026-10-20)
 
-**Short answer: no open PRs — but both are already fixed on `main`, and neither fix is in
-a release.** Bun 1.4.3 is vulnerable to both, exactly as both pages say. The fixes merged
-on 2026-10-21 and 2026-10-22, hours before this check.
+**Short answer: no open PRs — both were already fixed on `main`, and both fixes are now
+released.** Bun 1.4.3 was vulnerable to both, exactly as both pages said. The fixes merged
+on 2026-10-21 and 2026-10-22 and ship in **1.4.4** (2026-10-22), verified at the tag. This
+file records the state *before* the release; the verdicts below are what was true then.
 
 These are written up as findings **F11** (QPACK) and **F12** (eMudhra) in
 [`02-security-severity.md`](02-security-severity.md); this file is the detailed appendix —
@@ -57,7 +58,7 @@ Mitigation they give for Bun: *"Don't expose HTTP/3 servers."*
 
 ### Verified against the source
 
-**1.4.3 is vulnerable — confirmed.** I fetched `packages/bun-usockets/src/quic.c` at tag
+**1.4.3 was vulnerable — confirmed.** I fetched `packages/bun-usockets/src/quic.c` at tag
 `bun-v1.4.3` (1,636 lines). It contains no cumulative accounting at all:
 
 ```
@@ -138,11 +139,11 @@ against any client that still trusts the intermediates. Browsers blocked them fr
 2026-10-17; the practical risk is to **non-browser clients** that do not consume
 revocation information — command-line tools, SDKs, runtimes.
 
-The page lists **Bun: pending**.
+The page listed **Bun: pending** — correct at the time, and no longer.
 
 ### Verified against the source
 
-**1.4.3 is vulnerable — confirmed.** At tag `bun-v1.4.3` there is no SPKI blocklist file
+**1.4.3 was vulnerable — confirmed.** At tag `bun-v1.4.3` there is no SPKI blocklist file
 at all (`packages/bun-usockets/src/crypto/blocked_spkis.cpp` does not exist in that tree),
 and the bundled roots are NSS **3.128** (from #42835, 2026-09-16). Bun verifies against
 that **bundled** store by default; `--use-system-ca` / `NODE_USE_SYSTEM_CA=1` is opt-in.
