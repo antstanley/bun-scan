@@ -18,23 +18,29 @@ From [#44618](https://github.com/oven-sh/bun/pull/44618), which consolidates the
 PRs and describes each as *"reproduced on `main` and, for `node:*` behavior, on Node
 v26.3.0 first"*:
 
-| # | Issue | CWE | Security-relevant? |
-|---|---|---|---|
-| 1 | `WebSocket` never calls `tls.checkServerIdentity`; ignores `tls.serverName` (#41648) | 295 | **Yes** — accepts a cert for any host |
-| 2 | `NODE_TLS_REJECT_UNAUTHORIZED=0` disables a **server's** `requestCert` enforcement (#35245) | 295 | **Yes** — client-side env var weakens mTLS |
-| 3 | `tls: [...]` passed to `Bun.listen` / `Bun.connect` starts a **plaintext** listener (#41490) | 319 | **Yes** — no error, no warning |
-| 4 | `https.createServer()` without a usable key/cert answers **plain HTTP** (#41672) | 319 | **Yes** — silent cleartext |
-| 5 | Client certificate still sent to a server the client then refuses (#43946) | 200 | **Yes** — credential disclosure |
-| 6 | `secureConnect` reports `authorized === true` for a peer that failed the key proof (#44422, #32929) | 287 | **Yes** — false auth result |
-| 7 | An mTLS server never sees `crl`, so a revoked client is `authorized` (#41641) | 299 | **Yes** — revocation unimplemented |
-| 8 | Requests with different client certs/CAs share one `https.Agent` socket (#42498) | 488 | **Yes** — credential crossover |
-| 9 | `PGSSLMODE=verify-*` dropped next to a `TLS_*` URL variable (#44498) | 295 | **Yes** — silent downgrade |
-| — | Use-after-free from `destroy()` in `ALPNCallback` (#44462) | 416 | memory safety |
-| — | TLS `write()` loses 16 KB while another socket is stalled (#44529) | 703 | data integrity |
-| — | SIGABRT in `fetch` through an env proxy (#44458) | 248 | DoS |
+| # | Issue | CWE | Score | Source |
+|---|---|---|---|---|
+| 1 | `WebSocket` never calls `tls.checkServerIdentity`; ignores `tls.serverName` | 295 | **7.4** | #41648 |
+| 2 | `NODE_TLS_REJECT_UNAUTHORIZED=0` disables a **server's** `requestCert` enforcement | 295 | **7.4–9.1** | #35245 |
+| 3 | `tls: [...]` passed to `Bun.listen` / `Bun.connect` starts a **plaintext** listener | 319 | **7.4** | #41490 |
+| 4 | `https.createServer()` without a usable key/cert answers **plain HTTP** | 319 | **7.4** | #41672 |
+| 5 | Client certificate still sent to a server the client then refuses | 200 | 3.7 | #43946 |
+| 6 | `secureConnect` reports `authorized === true` for a peer that failed the key proof | 287 | **7.4** (8.7) | #44422, #32929 |
+| 7 | An mTLS server never sees `crl`, so a revoked client is `authorized` | 299 | 6.8 | #41641 |
+| 8 | Requests with different client certs/CAs share one `https.Agent` socket | 488 | 4.2 | #42498 |
+| 9 | `PGSSLMODE=verify-*` dropped next to a `TLS_*` URL variable | 295 | **7.4** | #44498 |
+| 10 | Postgres client never calls `tls.checkServerIdentity` | 295 | **8.7** | #45304 |
+| 11 | Use-after-free from `destroy()` in `ALPNCallback` | 416 | 5.9 | #44462 |
+| 12 | Heap-use-after-free in the stream TLS engine | 416 | 5.9 | #46335 |
+| 13 | TLS `write()` loses 16 KB while another socket is stalled | 703 | 5.9 | #44529 |
+| 14 | SIGABRT in `fetch` through an env proxy | 248 | 5.9 | #44458 |
 
-Plus [#46335](https://github.com/oven-sh/bun/pull/46335): an ASAN-confirmed heap-use-after-free
-in the stream TLS engine, *"Found by audit. No issue or crash report names it."*
+Scores are mine — CVSS 3.1, no CVE exists to cite. Vectors and preconditions are in §2.
+Items 1–14 share their numbering with that table.
+
+Row 12 is [#46335](https://github.com/oven-sh/bun/pull/46335), a separate PR: an
+ASAN-confirmed heap-use-after-free in the stream TLS engine, *"Found by audit. No issue or
+crash report names it."*
 
 **Nine of these are certificate-validation or transport-security defects**, not stability
 bugs. Items 1, 3 and 4 mean a client can be made to talk to the wrong host, or to believe it
@@ -61,13 +67,14 @@ CVSS's own canonical example of high complexity.
 | 8 | Different client certs/CAs shared one `https.Agent` socket and session | `AV:N/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:N` | **4.2 Low** (up to 6.8 cross-tenant) | several identities in one process |
 | 9 | `PGSSLMODE=verify-*` dropped next to a `TLS_*` URL variable | `AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N` | **7.4 High** | MITM plus that option combination |
 | 10 | Postgres client never called `tls.checkServerIdentity` | `AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N` | **8.7 High** | MITM; `S:C` because database data crosses into the app |
-| 11 | Heap-use-after-free in the stream TLS engine | `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H` | **5.9 Medium** | no JS-observable oracle; release builds panic |
-| 12 | TLS `write()` silently lost 16 KB | `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N` | **5.9 Medium** | a stalled socket elsewhere on the loop |
-| 13 | SIGABRT in `fetch` through an environment proxy | `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H` | **5.9 Medium** | env proxy + `Bun.file()` body |
+| 11 | Use-after-free from `destroy()` in `ALPNCallback` | `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H` | **5.9 Medium** | needs a crafted handshake sequence |
+| 12 | Heap-use-after-free in the stream TLS engine | `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H` | **5.9 Medium** | no JS-observable oracle; release builds panic |
+| 13 | TLS `write()` silently lost 16 KB | `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N` | **5.9 Medium** | a stalled socket elsewhere on the loop |
+| 14 | SIGABRT in `fetch` through an environment proxy | `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H` | **5.9 Medium** | env proxy + `Bun.file()` body |
 
 ### What that adds up to
 
-**Nine of the thirteen are certificate-validation or transport-security defects, and they
+**Nine of the fourteen are certificate-validation or transport-security defects, and they
 cluster at 7.4–8.7 High.** The band is set by two things: none needs authentication, all
 need a network position, and the impact is a full loss of confidentiality and integrity on
 the affected channel.
@@ -129,17 +136,22 @@ multiple key/cert pairs, `tls.DEFAULT_CIPHERS`, and `ws` ignoring TLS options.
 
 Measured against the actual fixes, the security items are **absent or reframed**:
 
-| Issue | In the blog? |
-|---|---|
-| `WebSocket` never called `checkServerIdentity` | **No** |
-| `NODE_TLS_REJECT_UNAUTHORIZED=0` weakened server mTLS | **Partly** — described as *"servers now only request a client certificate when `requestCert: true` is set, which matches the docs and Node.js"*, i.e. a behaviour alignment, not a fix for an enforcement bypass |
-| `tls: [...]` silently plaintext | **No** — the only "plain TCP" mention in the post is about MySQL `caching_sha2_password` |
-| `https.createServer()` without a key answering plain HTTP | **No** |
-| Client certificate disclosed to a refusing server | **No** |
-| `secureConnect` false `authorized` | **No** |
-| Revoked client certificates accepted | **No** |
-| `PGSSLMODE=verify-*` dropped | **No** |
-| **Postgres never called `tls.checkServerIdentity`** | **Reframed as a feature** — under *what's new*: *"`tls.checkServerIdentity(hostname, cert)`: replaces the built-in hostname check on PostgreSQL, MySQL and MariaDB, like in `node:tls`"*. Nothing says the built-in check did not exist before. |
+| Issue | Score | In the blog? |
+|---|---|---|
+| **Postgres never called `tls.checkServerIdentity`** | **8.7** | **Reframed as a feature** — under *what's new*: *"`tls.checkServerIdentity(hostname, cert)`: replaces the built-in hostname check on PostgreSQL, MySQL and MariaDB, like in `node:tls`"*. Nothing says the built-in check did not exist before. |
+| `WebSocket` never called `checkServerIdentity` | **7.4** | **No** |
+| `tls: [...]` silently plaintext | **7.4** | **No** — the only "plain TCP" mention in the post is about MySQL `caching_sha2_password` |
+| `https.createServer()` without a key answering plain HTTP | **7.4** | **No** |
+| `secureConnect` false `authorized` | **7.4** | **No** |
+| `PGSSLMODE=verify-*` dropped | **7.4** | **No** |
+| `NODE_TLS_REJECT_UNAUTHORIZED=0` weakened server mTLS | **7.4–9.1** | **Partly** — described as *"servers now only request a client certificate when `requestCert: true` is set, which matches the docs and Node.js"*, i.e. a behaviour alignment, not a fix for an enforcement bypass |
+| Revoked client certificates accepted | 6.8 | **No** |
+| Client certificate disclosed to a refusing server | 3.7 | **No** |
+
+Sorted by severity, and the pattern is the point: **the higher the score, the less the blog
+says.** The two most severe items — the Postgres hostname check at 8.7 and the WebSocket
+hostname check at 7.4 — are respectively reframed as a feature and omitted entirely. Only
+one item above is mentioned at all, and it is described as a behaviour alignment.
 
 That last row is the clearest example: a missing hostname verification is presented as a
 feature addition.
