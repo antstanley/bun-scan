@@ -142,10 +142,16 @@ other; most of their follow-up fixes repair damage that never reached a user.
 (121 → 117 certificates). #46300, merged 26 hours later, deleted the `%distrusted_labels`
 mechanism and regenerated from NSS 3.131.1 → 118 certificates, putting that root back.
 
-The eight compromised *intermediates* are still blocked by #46300's SPKI list, so the known
-attack still fails. Compared with 1.4.3 this is still a large improvement — 1.4.3 has
-neither the blocklist nor the root removal. But the root deletion was undone by accident,
-not by decision. Details in [`05-next-release.md`](05-next-release.md#3-finding-the-emudhra-root-removal-was-undone).
+**This does not reopen the known compromise.** The eight compromised intermediates are
+issued by `emSign Root TLS CA - G3`, which is not in NSS's list and not in Bun's bundle at
+all, and its Mozilla-trusted cross-sign (`emSign ECC Root CA - G3`) was dropped by NSS
+3.131.1. Nothing in the compromised set chains to `G1`. So the attack fails three ways
+over: SPKI blocklist, missing issuer root, missing cross-sign.
+
+It is a **process regression**, not an exploitable one: a deliberate removal was undone by
+two PRs racing, and the test that documented the exclusion was deleted in the same commit
+that undid it. Details in
+[`05-next-release.md`](05-next-release.md#3-finding-the-emudhra-root-removal-was-undone).
 
 ---
 

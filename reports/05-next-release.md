@@ -135,17 +135,67 @@ $ grep -c distrusted_labels generate-root-certs.pl
 0                                            <- mechanism gone
 ```
 
-**How bad is it?** Bounded, but not nothing. The eight compromised *intermediates* are
-still blocked by the SPKI list in #46300, so the known attack — forge a certificate under
-one of those eight keys — still fails. What came back is the *root*, which means any
-**other** intermediate eMudhra issues under `emSign Root CA - G1` is trusted again. Root
-removal was the blunt mitigation the advisory recommended for clients that cannot consume
-revocation; Bun now does precise mitigation instead, which is arguably the better design —
-but it was not a deliberate decision, it was a side effect of two PRs racing, and nobody
-said so in either description.
+**What the bundle actually contained, version by version** (verified from `root_certs.txt`
+at each ref):
+
+| Root | 1.4.3 | after #46159 | **1.4.4** |
+|---|---|---|---|
+| `emSign Root CA - G1` | present | removed | **present** ← the regression |
+| `emSign ECC Root CA - G3` | present | removed | absent (NSS 3.131.1 dropped it) |
+| `emSign Root CA - C1` | present | removed | absent (NSS 3.131.1 dropped it) |
+| `emSign ECC Root CA - C3` | present | removed | absent (NSS 3.131.1 dropped it) |
+| `AAA Certificate Services` | absent | absent | absent — in `certdata.txt` but never emitted into the bundle |
+| certificate count | 121 | 117 | **118** |
+
+`emSign ECC Root CA - G3` is the one that matters: it is the Mozilla-trusted cross-sign for
+`emSign Root TLS CA - G3`, the root the eight compromised intermediates are issued by. It is
+gone in 1.4.4 by two independent routes.
+
+**How bad is it? Less than it looks — this is a process regression, not a live hole.**
+I checked what the compromised intermediates actually chain to, using the advisory's own
+`impacted-intermediates.json` and `roots.json`:
+
+* All eight are issued by **`emSign Root TLS CA - G3`** (`7DD78D5F…`), whose Mozilla
+  status is *"Not Included"* — so it is **not in NSS `certdata.txt` and not in Bun's
+  bundle at all**.
+* Its Mozilla-trusted cross-sign, **`emSign ECC Root CA - G3`**, was dropped by NSS itself
+  in 3.131.1 and is absent from the 1.4.4 bundle.
+* The only eMudhra root in Bun's 1.4.4 bundle is **`emSign Root CA - G1`**, and **nothing
+  in the compromised set chains to it**.
+
+So the known attack — forge a certificate under one of the eight recovered keys — fails
+three ways over: the SPKI blocklist rejects it, its issuing root is absent, and its
+cross-sign is absent. Deleting `%distrusted_labels` did **not** restore any path for the
+known compromise.
+
+What it did do is remove a guard rail and the evidence that it existed. The four-root
+exclusion was a deliberate act on 2026-10-20, and #46300 undid it **including the test that
+documented it**:
+
+```diff
+   test("every bundled root is a certificate certdata.txt trusts for server auth", () => {
+-    // Mirrors %distrusted_labels in generate-root-certs.pl.
+-    const distrusted = new Set([
+-      "emSign Root CA - G1",
+-      "emSign ECC Root CA - G3",
+-      "emSign Root CA - C1",
+-      "emSign ECC Root CA - C3",
+-    ]);
+```
+
+That is `test/js/node/tls/node-tls-internals.test.ts`, changed in the same PR that
+regenerated the bundle. The regression was not caught, because the assertion that would
+have caught it was deleted alongside the mechanism it mirrored. The arithmetic also shows
+it was mechanical: NSS 3.131.1 had already dropped three of the four, so regenerating
+without the list gives 121 − 3 = **118**, with `G1` the only survivor.
+
+The residual risk is therefore not the known compromise but the *next* one: if eMudhra
+issues another intermediate under `G1`, or a future advisory implicates a chain rooted
+there, Bun trusts it, and there is no longer a list or a test saying otherwise.
 
 **Worth a maintainer confirming** that dropping `%distrusted_labels` was intended. If it
-was, the mechanism should be deleted deliberately with a note; if not, one root is back.
+was, delete the mechanism deliberately and say why. If it was not, one root — and its test
+coverage — is back.
 
 ---
 
