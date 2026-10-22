@@ -43,6 +43,7 @@ all patched on `main` within a day, and none is in a release.
 | [reports/02-security-severity.md](reports/02-security-severity.md) | **The deep dive** — 12 findings, CVSS 3.1, 6 verified with proofs of concept |
 | [reports/03-security-triage.md](reports/03-security-triage.md) | All 202 security-relevant PRs, rated, including the non-findings |
 | [reports/04-advisory-check.md](reports/04-advisory-check.md) | Two public advisories checked against Bun |
+| [reports/05-next-release.md](reports/05-next-release.md) | What is merged but not yet released — the 1.4.4 security scan |
 | [reports/inventory/](reports/inventory/) | All 5,652 PRs, one row each, grouped by purpose |
 | [reports/prs.csv](reports/prs.csv) | The same classification, machine-readable |
 

@@ -4,3 +4,7 @@ data/
 
 .DS_Store
 *.swp
+
+# Python bytecode from scripts/
+__pycache__/
+*.pyc

@@ -14,6 +14,7 @@
 | **[02-security-severity.md](02-security-severity.md)** | **The deep dive.** Twelve findings rated with CVSS 3.1 — reach, attacker model, impact, and for six of them a proof of concept I ran against Bun 1.4.0 — plus a hardening bundle that does not fit the shape. |
 | **[03-security-triage.md](03-security-triage.md)** | All 202 security-relevant PRs in one table, each with a rating and a one-line verdict. Includes the ones I decided are *not* vulnerabilities. |
 | **[04-advisory-check.md](04-advisory-check.md)** | The detailed appendix for F11 and F12 — the FoxIO QPACK amplification attack and the eMudhra intermediate CA compromise — with the reproduction commands. Both are fixed on `main` and in **no release**. |
+| **[05-next-release.md](05-next-release.md)** | What is merged but not yet released: a scan of the 169 PRs between `bun-v1.4.3` and `main`, including the certificate-validation bypasses hidden in the TLS and SQL consolidation PRs. |
 | **[inventory/](inventory/)** | All 5,652 PRs, one row each, grouped by what the PR is for. Every row carries the author's own description of the change. |
 | **[prs.csv](prs.csv)** | The same classification, machine-readable. |
 
