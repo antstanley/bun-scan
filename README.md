@@ -45,7 +45,6 @@ all patched on `main` within a day, and none is in a release.
 | [reports/04-advisory-check.md](reports/04-advisory-check.md) | Two public advisories checked against Bun |
 | [reports/inventory/](reports/inventory/) | All 5,652 PRs, one row each, grouped by purpose |
 | [reports/prs.csv](reports/prs.csv) | The same classification, machine-readable |
-| [poc/](poc/) | The proof-of-concept scripts, with their observed output |
 
 ## Method
 
@@ -73,8 +72,9 @@ python3 scripts/build_triage.py   # 03-security-triage.md
 
 `data/` (the raw API responses, ~147 MB) is gitignored. Nothing else is.
 
-## On the proof-of-concept scripts
+## On the reproductions
 
-Every script in [`poc/`](poc/) re-derives a reproduction that already appears in a
-**public** pull request on `oven-sh/bun`. None is a weaponised exploit. Details and status
-are in [poc/README.md](poc/README.md).
+Six findings were confirmed by running a reproduction against Bun 1.4.0. The observed
+output is quoted inline in the reports. The scripts themselves are **not published here** —
+each reproduction also appears in the public pull request that reports the bug, and those
+are linked from every finding.

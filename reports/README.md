@@ -84,7 +84,8 @@ binding constraint. See [04-advisory-check.md](04-advisory-check.md).
    [02-security-severity.md §2](02-security-severity.md#2-how-i-worked-and-how-much-to-trust-each-claim).
 5. **Reproduce.** Six PoCs executed against a local Bun 1.4.0 — HTML injection, the symlink
    escape, WASI pointer handling, `URLPattern` timing, duplicate `Host`, and the
-   deep-nesting SIGSEGV. Scripts in [`../poc/`](../poc/).
+   deep-nesting SIGSEGV. The observed output is quoted inline; the scripts are not
+   published.
 
 **Limits you should hold me to:**
 

@@ -95,8 +95,9 @@ users actually run?*
 | eMudhra distrust in 1.4.3? | `blocked_spkis.cpp` at tag `bun-v1.4.3` vs `main` | **Absent in 1.4.3**; **8 eMudhra SPKIs on `main`** |
 
 **And I ran them.** Bun 1.4.0 was installed locally, so six of the findings below are
-backed by a proof of concept I executed, not just by the PR text. The PoCs are in
-[`../poc/`](../poc/) and their output is quoted inline.
+backed by a reproduction I executed, not just by the PR text. Their output is quoted
+inline; the scripts are not published, and each reproduction also appears in the public
+pull request that reports the bug.
 
 **Confidence.** I mark each finding `verified` (reproduced or confirmed in source),
 `confirmed` (source and dependency state confirmed, exploit not run), or
@@ -864,4 +865,4 @@ That is better than most human-written security PRs. The problem is volume.
 
 *Companion files: [`03-security-triage.md`](03-security-triage.md) for all 202 candidates
 with individual assessments; [`prs.csv`](prs.csv) for the raw classification;
-[`../poc/`](../poc/) for the proof-of-concept scripts referenced above.*
+[`04-advisory-check.md`](04-advisory-check.md) for the F11 and F12 reproduction commands.*
