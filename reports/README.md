@@ -18,6 +18,7 @@ upgrading fix?
 | **[05-next-release.md](05-next-release.md)** | What shipped in **1.4.4**, verified against the tag: the 171 PRs between `bun-v1.4.3` and `bun-v1.4.4`, including the certificate-validation bypasses hidden in the TLS and SQL consolidation PRs. |
 | **[06-release-gap.md](06-release-gap.md)** | **The bottom line**: 27 issues that 1.4.4 fixes, 9 that stay broken. Start here if you just want to know whether upgrading helped. |
 | **[07-1.4.4-changelog.md](07-1.4.4-changelog.md)** | A security changelog for 1.4.4, reconstructed from the 171 merged PRs — the release notes carry none. |
+| **[08-tls-disclosure.md](08-tls-disclosure.md)** | Were the 1.4.4 TLS fixes disclosed? CVE status, what Bun said, and how Node handled the same class. |
 | **[inventory/](inventory/)** | All 5,653 PRs, one row each, grouped by what the PR is for. Every row carries the author's own description of the change. |
 | **[prs.csv](prs.csv)** | The same classification, machine-readable. |
 

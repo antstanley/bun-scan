@@ -22,6 +22,7 @@ This repository holds an evaluation of the open pull requests on
 | `reports/06-release-gap.md` | hand-written; **the bottom line** — what 1.4.3 was exposed to and what remains |
 | `README.md`, `reports/README.md` | hand-written indexes with headline numbers |
 | `reports/07-1.4.4-changelog.md` | hand-written security changelog, one per release |
+| `reports/08-tls-disclosure.md` | hand-written; disclosure analysis for the 1.4.4 TLS fixes |
 
 There are two independent scans. Run whichever the task needs; the release-gap one is the
 one that answers "is the current release vulnerable".

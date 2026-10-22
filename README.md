@@ -92,6 +92,7 @@ patched on `main` within a day and sat unreleased for up to twelve days.
 | [reports/05-next-release.md](reports/05-next-release.md) | What shipped in 1.4.4 — verified against the tag |
 | [reports/06-release-gap.md](reports/06-release-gap.md) | **What 1.4.3 was exposed to, what 1.4.4 fixed, and what remains** |
 | [reports/07-1.4.4-changelog.md](reports/07-1.4.4-changelog.md) | Security changelog for 1.4.4 |
+| [reports/08-tls-disclosure.md](reports/08-tls-disclosure.md) | Were the 1.4.4 TLS fixes disclosed? No CVE, no advisory |
 | [reports/inventory/](reports/inventory/) | All 5,653 PRs, one row each, grouped by purpose |
 | [reports/prs.csv](reports/prs.csv) | The same classification, machine-readable |
 
