@@ -1,8 +1,9 @@
 # Evaluation of every open pull request on `oven-sh/bun`
 
-**Snapshot taken:** 2026-10-22, ~09:30 UTC
-**Scope:** all **5,653** open PRs at that moment
-**Question asked:** what is each PR for, and how bad are the security ones?
+**Queue snapshot:** 2026-10-22 · **5,653** open PRs
+**Release analysed:** Bun **1.4.3** · **Latest release: 1.4.4** (2026-10-22)
+**Question asked:** what is each PR for, how bad are the security ones, and what does
+upgrading fix?
 
 ---
 

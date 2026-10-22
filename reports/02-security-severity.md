@@ -1,6 +1,6 @@
 # Security deep dive — open oven-sh/bun PRs
 
-**Snapshot:** 2026-10-22, ~09:30 UTC · 5,653 open PRs · Bun latest release **1.4.3** (2026-10-10)
+**Snapshot:** 2026-10-22 · 5,653 open PRs · release analysed **1.4.3** (2026-10-10) · latest release **1.4.4** (2026-10-22)
 **Local verification build:** Bun **1.4.0** (macOS arm64)
 
 ---
