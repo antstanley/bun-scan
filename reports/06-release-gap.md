@@ -99,6 +99,10 @@ to 1.4.4. Nothing else in this evaluation comes close.
 
 ## Part B — still open in 1.4.4 (residual risk after upgrading)
 
+**Status as of 1.4.4 (2026-10-22):** all nine are still open. `main` is identical to the
+tag, so none of them is "fixed on main, unreleased" either — they are open, full stop.
+Each links the PR that would close it.
+
 These stay broken whether or not you upgrade. From the main report:
 
 | Finding | Sev | What it is |

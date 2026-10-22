@@ -21,6 +21,7 @@ This repository holds an evaluation of the open pull requests on
 | `reports/05-next-release.md` | hand-written; describes what is merged but unreleased |
 | `reports/06-release-gap.md` | hand-written; **the bottom line** — what 1.4.3 is exposed to |
 | `README.md`, `reports/README.md` | hand-written indexes with headline numbers |
+| `reports/07-1.4.4-changelog.md` | hand-written security changelog, one per release |
 
 There are two independent scans. Run whichever the task needs; the release-gap one is the
 one that answers "is the current release vulnerable".

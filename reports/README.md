@@ -16,6 +16,7 @@
 | **[04-advisory-check.md](04-advisory-check.md)** | The detailed appendix for F11 and F12 — the FoxIO QPACK amplification attack and the eMudhra intermediate CA compromise — with the reproduction commands. Both are fixed in **1.4.4**. |
 | **[05-next-release.md](05-next-release.md)** | What shipped in **1.4.4**, verified against the tag: the 171 PRs between `bun-v1.4.3` and `bun-v1.4.4`, including the certificate-validation bypasses hidden in the TLS and SQL consolidation PRs. |
 | **[06-release-gap.md](06-release-gap.md)** | **The bottom line**: 27 issues that 1.4.4 fixes, 9 that stay broken. Start here if you just want to know whether upgrading helped. |
+| **[07-1.4.4-changelog.md](07-1.4.4-changelog.md)** | A security changelog for 1.4.4, reconstructed from the 171 merged PRs — the release notes carry none. |
 | **[inventory/](inventory/)** | All 5,653 PRs, one row each, grouped by what the PR is for. Every row carries the author's own description of the change. |
 | **[prs.csv](prs.csv)** | The same classification, machine-readable. |
 
@@ -68,7 +69,8 @@ only 4 are mergeable and clean; the median security PR has waited 68 days. Detec
 working — several findings say *"an audit found this, no user reported it"*. Delivery is
 not.
 
-**1.4.4 shipped on 2026-10-22 and closes 27 issues.** F1, F11 and F12 (brotli, QPACK,
+**1.4.4 shipped on 2026-10-22 and closes 27 issues.** Six of the fifteen findings are
+fixed; nine (F2–F10) are outstanding, and none of those is fixed-but-unreleased. F1, F11 and F12 (brotli, QPACK,
 eMudhra) plus nine TLS certificate-validation bypasses, a Postgres MITM and a WebSocket
 desync — all verified present in the tag, not just predicted from `main`. Nine findings,
 including the HTMLRewriter XSS, stay open either way. See

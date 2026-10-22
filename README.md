@@ -22,11 +22,18 @@ what each one is for, and how bad the security ones are.
 **Fifteen findings.** Two matter more than the rest:
 
 1. **brotli decoder OOB write, CVE-2026-111497** — remote, unauthenticated, reachable
-   through `fetch()` on any `Content-Encoding: br` response. Every released Bun is
-   affected. `main` is already fixed; **1.4.3 is not**.
+   through `fetch()` on any `Content-Encoding: br` response. Every Bun up to 1.4.3 was
+   affected; **fixed in 1.4.4**.
 2. **`HTMLRewriter` comment setter is an HTML-injection bypass** — `-->` is rejected but
    `--!>`, `>`, `->` are not, so injected markup goes live. Reproduced XSS. **Not fixed
    anywhere.**
+
+**Status as of 1.4.4 (shipped 2026-10-22): 6 of the 15 findings are fixed, 9 are outstanding.**
+`main` is identical to the tag, so none of the nine is "fixed but unreleased". The
+outstanding set is F2–F10 — HTMLRewriter XSS, URLPattern and HTTP/2 DoS, the `bun add`
+supply-chain gap, HTTP/2 `originSet`, the `mkdir` symlink escape, WASI pointer bounds, the
+cron `/tmp` path, and `bun audit` failing open. See
+[06-release-gap.md](reports/06-release-gap.md) Part B.
 
 Plus a structural result: detection and patching work; **shipping lagged**. Three
 high-profile issues in three days — brotli, the [FoxIO QPACK amplification
@@ -47,6 +54,7 @@ advisories.
 | [reports/04-advisory-check.md](reports/04-advisory-check.md) | Two public advisories checked against Bun |
 | [reports/05-next-release.md](reports/05-next-release.md) | What shipped in 1.4.4 — verified against the tag |
 | [reports/06-release-gap.md](reports/06-release-gap.md) | **What 1.4.3 was exposed to, what 1.4.4 fixed, and what remains** |
+| [reports/07-1.4.4-changelog.md](reports/07-1.4.4-changelog.md) | Security changelog for 1.4.4 |
 | [reports/inventory/](reports/inventory/) | All 5,653 PRs, one row each, grouped by purpose |
 | [reports/prs.csv](reports/prs.csv) | The same classification, machine-readable |
 
