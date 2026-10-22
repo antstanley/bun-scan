@@ -3,7 +3,7 @@
 An evaluation of **every open pull request on [`oven-sh/bun`](https://github.com/oven-sh/bun/pulls)** —
 what each one is for, and how bad the security ones are.
 
-**Snapshot:** 2026-10-22, ~09:30 UTC · **5,652 open PRs** · Bun latest release **1.4.3**
+**Snapshot:** 2026-10-22, ~09:30 UTC · **5,653 open PRs** · Bun latest release **1.4.3**
 
 ---
 
@@ -11,8 +11,8 @@ what each one is for, and how bad the security ones are.
 
 | | |
 |---|---|
-| Open PRs evaluated | **5,652** |
-| Authored by `robobun` (an automated agent) | **4,533 (80%)** |
+| Open PRs evaluated | **5,653** |
+| Authored by `robobun` (an automated agent) | **4,534 (80%)** |
 | Fixes / features / tests / docs / perf | 77.6% / 6.7% / 7.6% / 3.3% / 0.9% |
 | Median PR age | **54 days** |
 | Security-relevant PRs | **202** |
@@ -45,7 +45,7 @@ all patched on `main` within a day, and none is in a release.
 | [reports/04-advisory-check.md](reports/04-advisory-check.md) | Two public advisories checked against Bun |
 | [reports/05-next-release.md](reports/05-next-release.md) | What is merged but not yet released — the 1.4.4 security scan |
 | [reports/06-release-gap.md](reports/06-release-gap.md) | **What 1.4.3 is exposed to and what upgrading fixes** |
-| [reports/inventory/](reports/inventory/) | All 5,652 PRs, one row each, grouped by purpose |
+| [reports/inventory/](reports/inventory/) | All 5,653 PRs, one row each, grouped by purpose |
 | [reports/prs.csv](reports/prs.csv) | The same classification, machine-readable |
 
 ## Method

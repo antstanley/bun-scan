@@ -1,7 +1,7 @@
 # Evaluation of every open pull request on `oven-sh/bun`
 
 **Snapshot taken:** 2026-10-22, ~09:30 UTC
-**Scope:** all **5,652** open PRs at that moment
+**Scope:** all **5,653** open PRs at that moment
 **Question asked:** what is each PR for, and how bad are the security ones?
 
 ---
@@ -16,12 +16,12 @@
 | **[04-advisory-check.md](04-advisory-check.md)** | The detailed appendix for F11 and F12 — the FoxIO QPACK amplification attack and the eMudhra intermediate CA compromise — with the reproduction commands. Both are fixed on `main` and in **no release**. |
 | **[05-next-release.md](05-next-release.md)** | What is merged but not yet released: a scan of the 169 PRs between `bun-v1.4.3` and `main`, including the certificate-validation bypasses hidden in the TLS and SQL consolidation PRs. |
 | **[06-release-gap.md](06-release-gap.md)** | **The bottom line for a 1.4.3 user**: 20 issues fixed by upgrading, 9 that stay broken. Start here if you just want to know whether to upgrade. |
-| **[inventory/](inventory/)** | All 5,652 PRs, one row each, grouped by what the PR is for. Every row carries the author's own description of the change. |
+| **[inventory/](inventory/)** | All 5,653 PRs, one row each, grouped by what the PR is for. Every row carries the author's own description of the change. |
 | **[prs.csv](prs.csv)** | The same classification, machine-readable. |
 
 ## The answer in one screen
 
-**Composition.** 80% of the queue (4,533 PRs) is authored by `robobun`, an automated
+**Composition.** 80% of the queue (4,534 PRs) is authored by `robobun`, an automated
 agent. 77.6% of all open PRs are fixes, 6.7% features, 3.3% docs, 0.9% performance, 0.7%
 security. Median PR age: 54 days.
 
@@ -77,7 +77,7 @@ findings — including the HTMLRewriter XSS — stay open either way. See
 ## Method, and its limits
 
 1. **Collect.** All open PRs via the GitHub REST API, 57 pages, deduplicated against
-   pagination drift (5,652 unique).
+   pagination drift (5,653 unique).
 2. **Classify.** A title-weighted vocabulary over each PR's title and its own
    `What`/`Problem` section, plus an explicit taxonomy of vulnerability classes, CVE/GHSA
    identifiers, and hardening signals. 202 security candidates in four tiers.

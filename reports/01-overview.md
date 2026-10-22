@@ -1,8 +1,8 @@
-# The open PR queue on `oven-sh/bun` — what 5,652 PRs are actually about
+# The open PR queue on `oven-sh/bun` — what 5,653 PRs are actually about
 
 **Snapshot:** 2026-10-22, ~09:30 UTC
 **Latest Bun release at snapshot:** 1.4.3 (2026-10-10)
-**Source:** GitHub REST API, every open PR, all 57 pages, deduplicated (5,652 unique, zero
+**Source:** GitHub REST API, every open PR, all 57 pages, deduplicated (5,653 unique, zero
 pagination drift)
 
 ---
@@ -11,11 +11,11 @@ pagination drift)
 
 | | PRs | Share |
 |---|---:|---:|
-| `robobun` — the automated agent | **4,533** | **80.2%** |
+| `robobun` — the automated agent | **4,534** | **80.2%** |
 | Everyone else (maintainers + community) | 1,119 | 19.8% |
 
-4,484 PRs carry the `claude` label. The three biggest human contributors are
-`Jarred-Sumner` (199), `dylan-conway` (118) and `steipete` (83) — together, 7% of the
+4,485 PRs carry the `claude` label. The three biggest human contributors are
+`Jarred-Sumner` (198), `dylan-conway` (119) and `steipete` (83) — together, 7% of the
 queue.
 
 This changes how the rest of this report should be read. A normal open-source PR queue is
@@ -25,14 +25,14 @@ agent, at a sustained rate:
 
 | Week (relative) | PRs opened |
 |---|---:|
-| this week (partial) | 777 |
-| 1 week ago | 253 |
-| 2 weeks ago | 160 |
-| 3 weeks ago | 181 |
-| 4 weeks ago | 376 |
-| 5 weeks ago | 357 |
-| 6 weeks ago | 488 |
-| 7 weeks ago | 224 |
+| this week (partial) | 810 |
+| 1 week ago | 257 |
+| 2 weeks ago | 163 |
+| 3 weeks ago | 183 |
+| 4 weeks ago | 365 |
+| 5 weeks ago | 359 |
+| 6 weeks ago | 487 |
+| 7 weeks ago | 233 |
 
 Roughly 160–490 per week over the recent full weeks. At that rate the queue cannot be
 drained by review alone, and indeed it is not being drained: the **median open PR is 54
@@ -42,8 +42,8 @@ days old**, and 108 are more than a year old.
 
 | Category | PRs | Share | What it means |
 |---|---:|---:|---|
-| **Fix** | 4,386 | 77.6% | Corrects behaviour: a crash, a wrong result, a Node-parity gap, a hang, a hardening change |
-| **Test** | 430 | 7.6% | Test-only: new coverage, de-flaking, faster suites |
+| **Fix** | 4,385 | 77.6% | Corrects behaviour: a crash, a wrong result, a Node-parity gap, a hang, a hardening change |
+| **Test** | 432 | 7.6% | Test-only: new coverage, de-flaking, faster suites |
 | **Feature** | 380 | 6.7% | New API, new flag, new platform, behaviour that did not exist |
 | **Docs** | 184 | 3.3% | Docs, guides, types prose |
 | **Chore / CI / deps** | 133 | 2.4% | WebKit bumps, dependency pins, build tooling |
@@ -63,7 +63,7 @@ where the label is wrong the description next to it is still right. Treat the ca
 a filter, not a fact.
 
 **Fixes dominate because the base rate dominates.** The agent's output is overwhelmingly
-small parity fixes against Node — 795 PRs mention `node:` in the title. That is genuinely
+small parity fixes against Node — 794 PRs mention `node:` in the title. That is genuinely
 useful work; it is also why the queue grows faster than it can be reviewed.
 
 > On the two security numbers: the table's **38** counts PRs whose *title* names a vuln
@@ -75,12 +75,12 @@ useful work; it is also why the queue grows faster than it can be reviewed.
 
 ## 3. Which subsystems
 
-Top areas by title prefix (1545 PRs have no `area:` prefix at all):
+Top areas by title prefix (1544 PRs have no `area:` prefix at all):
 
 | Area | PRs |
 |---|---:|
 | `bundler` | 216 |
-| `test` | 179 |
+| `test` | 181 |
 | `docs` | 147 |
 | `css` | 138 |
 | `js_parser` | 108 |
@@ -119,18 +119,18 @@ Theme clusters worth knowing about, because they tell you where the project is h
 
 | Age of PR | PRs |
 |---|---:|
-| ≤ 7 days | 821 |
-| 8–30 days | 632 |
-| 31–90 days | 3,312 |
-| 91–180 days | 587 |
-| 181–365 days | 144 |
+| ≤ 7 days | 856 |
+| 8–30 days | 642 |
+| 31–90 days | 3,308 |
+| 91–180 days | 594 |
+| 181–365 days | 145 |
 | > 1 year | 108 |
 
-Median: **54 days**. The 31–90 day band is a cliff — that is where PRs go to wait, and it
+Median: **55 days**. The 31–90 day band is a cliff — that is where PRs go to wait, and it
 is where the security fixes in the companion report are sitting.
 
 **A caveat on size data:** the REST *list* endpoint omits `additions`, `deletions` and
-`changed_files`, and the snapshot did not fetch per-PR details for all 5,652. Sizes quoted
+`changed_files`, and the snapshot did not fetch per-PR details for all 5,653. Sizes quoted
 in this report come from per-PR calls made for the 202 security-relevant PRs and for
 individually discussed PRs. I have not estimated sizes for the rest.
 
@@ -157,11 +157,11 @@ The queue is not short of good work. It is short of review throughput, and the r
 does happen is not triaged by risk.
 
 * **One label exists** (`claude`, on 4,484 PRs). There is no `security` label, no
-  `needs-review`, no priority axis. Nothing in the API tells a maintainer which of 5,652
+  `needs-review`, no priority axis. Nothing in the API tells a maintainer which of 5,653
   PRs would break a user's week.
-* **Drafts: 365** (226 from the agent). Some are genuinely WIP; others appear to be
+* **Drafts: 367** (226 from the agent). Some are genuinely WIP; others appear to be
   finished work parked as draft.
-* **The labels are near-useless for filtering.** `claude` is on 4,484 PRs (79%); the next
+* **The labels are near-useless for filtering.** `claude` is on 4,485 PRs (79%); the next
   most common label — `breaking` — is on 4, and everything else (`bundler`,
   `dependencies`, `docs`, `node:crypto`, `types`, `github_actions`, `codex`) is on one PR.
 

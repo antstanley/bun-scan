@@ -2,10 +2,12 @@
 
 Test-only changes: new coverage, de-flaking, faster suites. No runtime behaviour change.
 
-**430 pull requests.** Newest first.
+**432 pull requests.** Newest first.
 
 | PR | Title | What it does | Author | | Sec |
 |---|---|---|---|---|---|
+| [#46482](https://github.com/oven-sh/bun/pull/46482) | test: check spyOn and Proxy assignment on Bun.$, sql, postgres and SQL before their first read | Behaviour change: none - #46021 made spyOn(Bun, "$") throw spyOn(target, prop) does not support accessor properties yet until the first read of Bun.$… | robobun |  |  |
+| [#46479](https://github.com/oven-sh/bun/pull/46479) | test: run every test that is skipped on Windows | Removes every Windows skip in the test suite so that CI shows which ones are still needed. About 1,000 tests, or parts of tests, are skipped on Windows… | dylan-conway | draft |  |
 | [#46477](https://github.com/oven-sh/bun/pull/46477) | test: stop next-auth.test.ts from waiting on the npm registry while next dev starts | Stops test/js/third_party/next-auth/next-auth.test.ts from depending on the public npm registry while its server starts. Root cause. The fixture starts… | dylan-conway |  |  |
 | [#46362](https://github.com/oven-sh/bun/pull/46362) | Test Temporal counts of 2^64 nanoseconds or more against the nearest Number | On Windows, Temporal is expected to return the neighbour of the nearest Number for a count of 2^64 nanoseconds (584.5 years) or more. For 256 valid… | robobun | draft |  |
 | [#46350](https://github.com/oven-sh/bun/pull/46350) | test(ws): run the child-process tests of ws-client-compat-events as one group, slowest first | test/js/first_party/ws/ws-client-compat-events.test.ts takes 21.07 s on debian 13 x64-asan in the parallel batch (build 128666) and 13.58 s alone (build… | robobun |  |  |

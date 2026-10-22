@@ -59,6 +59,8 @@ with open(os.path.join(OUT, "prs.csv"), "w", newline="") as f:
                     re.sub(r"\s+", " ", pr.get("summary") or "")[:500]])
 
 # ------------------------------------------------------------ inventory ----
+WRITTEN = []
+
 def write_file(name, title, blurb, prs):
     path = os.path.join(INV, name)
     with open(path, "w") as f:
@@ -68,6 +70,7 @@ def write_file(name, title, blurb, prs):
         for pr in sorted(prs, key=lambda x: -x["number"]):
             f.write(row(pr) + "\n")
     print(f"  {name}: {len(prs)}")
+    WRITTEN.append((name, len(prs)))
     return len(prs)
 
 by = {}
@@ -120,13 +123,7 @@ with open(os.path.join(INV, "README.md"), "w") as f:
     f.write("Every open pull request on `oven-sh/bun`, one row each, grouped by "
             "what the PR is for.\n\n")
     f.write("| File | PRs |\n|---|---|\n")
-    f.write(f"| [01-security.md](01-security.md) | {len(by.get('security', [])) or 38} |\n")
-    for fn, cnt in [
-        ("02-features.md", 380), ("03-performance.md", 53),
-        ("04-fixes-part1.md", CH), ("04-fixes-part2.md", CH),
-        ("04-fixes-part3.md", CH), ("04-fixes-part4.md", len(fixes) - 3 * CH),
-        ("05-tests.md", 430), ("06-docs.md", 184),
-        ("07-chores-refactors-other.md", 181)]:
+    for fn, cnt in WRITTEN:
         f.write(f"| [{fn}]({fn}) | {cnt} |\n")
     f.write("\nThe machine-readable version of the same data is "
             "[`../prs.csv`](../prs.csv).\n\n")

@@ -1,7 +1,7 @@
 # What ships in the next release (1.4.4): security scan
 
 **Window:** `bun-v1.4.3` (2026-10-10 05:24Z) → `main` (2026-10-22 ~09:30Z)
-**Diff:** 170 commits · **169 merged PRs** · 1 direct commit (`Bump`, sets `package.json` to **1.4.4**)
+**Diff:** 172 commits · **171 merged PRs** · 1 direct commit (`Bump`, sets `package.json` to **1.4.4**)
 **Question:** which security fixes are merged but not yet released?
 
 ---
@@ -24,6 +24,7 @@ PRs whose titles say "consolidate", "WebSocket", and "sql".
 | 7 | [#46387](https://github.com/oven-sh/bun/pull/46387) + [#46410](https://github.com/oven-sh/bun/pull/46410) | `structuredClone` accepts crafted `CryptoKey` records (uninitialised byte read) | CWE-457/20 |
 | 8 | [#46335](https://github.com/oven-sh/bun/pull/46335) | ASAN heap-use-after-free in the stream TLS engine | CWE-416 |
 | 9 | [#46389](https://github.com/oven-sh/bun/pull/46389) | Quadratic `Bun.stringWidth` (2.56 s for a 400 KB string) | CWE-1333 |
+| 10 | [#46456](https://github.com/oven-sh/bun/pull/46456) | `node:http`/`node:http2` now refuse the malformed requests Node refuses | CWE-444/20 |
 
 Details on the ones that were not already public.
 
@@ -68,6 +69,15 @@ The Postgres client validated the chain but **never checked that the certificate
 the host it connected to**. Any valid certificate from any CA would pass. Also adds
 SCRAM-SHA-256-PLUS with `channelBinding: disable|prefer|require`, and stops reading
 `$PASSWORD` as the database password.
+
+### #46456 — "node:http, node:http2: refuse the malformed requests that Node refuses"
+
+Hardening for how the `node:http` and `node:http2` servers read a request; `Bun.serve` is
+unchanged. A request target carrying a byte from `0x7f` to `0xff` or a control character is
+answered `400` before any handler runs, where **Bun used to run the handler with `req.url`
+decoded as UTF-8**. A `DEL` (`0x7f`) in a header or trailer value is answered `400` unless
+the parser is lenient. Both are Node's behaviour; bytes like `0x7f` inside a request line
+are the raw material of request smuggling and log injection.
 
 ### #45223 — "WebSocket: real closing handshake …"
 
@@ -192,6 +202,7 @@ XSS and the five DoS-class findings.
 | [#45144](https://github.com/oven-sh/bun/pull/45144) | CI images verify every download against a sha256 and pin what floated — build supply chain, not user-facing |
 | [#46227](https://github.com/oven-sh/bun/pull/46227) | CI image trusted roots updated — CI only |
 | [#44912](https://github.com/oven-sh/bun/pull/44912) | `node:http` builds `req.headers` natively and validates a set header name once — no behaviour change |
+| [#46480](https://github.com/oven-sh/bun/pull/46480) | Excluded from the exposure count: fixes a hard-link fallback that regressed in #44968, never released |
 
 ---
 
@@ -214,8 +225,8 @@ Two things I would raise before shipping:
 
 ---
 
-*Method: `gh api repos/oven-sh/bun/compare/bun-v1.4.3...main` (170 commits), PR numbers
-extracted from commit subjects (169/170 mapped; 1 direct commit), each PR fetched and
+*Method: `gh api repos/oven-sh/bun/compare/bun-v1.4.3...main` (172 commits), PR numbers
+extracted from commit subjects (171/172 mapped; 1 direct commit), each PR fetched and
 classified, then read by hand. Reference lists inside #46021 and #46270 were parsed to
 detect absorbed PRs. Root-bundle claims verified against `root_certs.txt`,
 `generate-root-certs.pl` and `blocked_spkis.cpp` on `main`.*

@@ -8,17 +8,17 @@
 
 ## The answer
 
-Bun 1.4.3 has **at least 20 distinct security issues** that are fixed on `main` and not in
-the release — including nine certificate-validation bypasses that were never filed as
+Bun 1.4.3 has **27 enumerated security issues** — one row of which stands for about 300
+crash fixes — that are fixed on `main` and not in the release — including nine certificate-validation bypasses that were never filed as
 advisories. After upgrading, **nine findings from this evaluation remain unfixed**
 (F2–F10), one of which is a remotely reachable XSS.
 
 | | Count | Worst severity |
 |---|---|---|
-| Vulnerable in 1.4.3, **fixed** in 1.4.4 | **20 distinct** + ~300 crash fixes | 8.7 High |
+| Vulnerable in 1.4.3, **fixed** in 1.4.4 | **27** (incl. ~300 crash fixes) | 8.7 High |
 | Vulnerable in 1.4.3, **not fixed anywhere** | **9** (F2–F10) | 7.5 High (plus an XSS) |
 
-Three of the fixed items are published advisories. The rest were found by scanning the 169
+Three of the fixed items are published advisories. The rest were found by scanning the 171
 PRs merged since the release tag — most of them inside consolidation PRs whose titles say
 "consolidate", "WebSocket" and "sql".
 
@@ -65,7 +65,16 @@ Ordered by severity. "Basis" says how I know 1.4.3 is affected.
 | Masked server frame parsed with the mask key as payload; parser desyncs | 5.3 | A malicious server; smuggling precondition behind a proxy | PR reproduces on `main` |
 | Control frames queued for absent listeners — ping flood grows memory | 5.3 | Any client | same |
 
-### A5. Memory safety and crash hardening
+### A5. HTTP request parsing — #46456
+
+| Item | Sev | Who can exploit it | Basis |
+|---|---|---|---|
+| Request target with a byte from `0x7f`–`0xff` or a control character ran the handler with `req.url` decoded as UTF-8 instead of answering `400` | 5.3 | Any client; raw material for request smuggling and log injection | PR states Node's behaviour and the previous one |
+| `DEL` (`0x7f`) in a header or trailer value accepted | 4.3 | Any client | same |
+
+Bun.serve is unchanged; this is the `node:http` / `node:http2` servers only.
+
+### A6. Memory safety and crash hardening
 
 | Item | Sev | Notes | Basis |
 |---|---|---|---|
@@ -114,6 +123,7 @@ inflate the exposure. I excluded:
 | [#45124](https://github.com/oven-sh/bun/pull/45124) | *"Regression from #44618, not in a release"* — a large upload losing the peer's 403 |
 | [#45139](https://github.com/oven-sh/bun/pull/45139) | *"On main since #44618, not in a release"* — 100% CPU busy loop |
 | [#45477](https://github.com/oven-sh/bun/pull/45477) | Regression from #45307, unreleased |
+| [#46480](https://github.com/oven-sh/bun/pull/46480) | Fixes a hard-link fallback that regressed in #44968 — never released |
 | The regression list in [#46270](https://github.com/oven-sh/bun/pull/46270) | *"Regressions fixed (none was released)"* — `spyOn(Bun,"sql")`, `WebAssembly.Memory` views losing data, `node:vm` accessors |
 
 This matters because the three consolidation PRs are large and landed within days of each
@@ -147,7 +157,7 @@ not by decision. Details in [`05-next-release.md`](05-next-release.md#3-finding-
 
 ---
 
-*Method: `compare/bun-v1.4.3...main` → 170 commits, 169 PRs; each fetched and read. Items
+*Method: `compare/bun-v1.4.3...main` → 172 commits, 171 PRs; each fetched and read. Items
 counted as "1.4.3 vulnerabilities" only where the PR states it reproduces on `main` before
 the fix, where the affected code predates the tag, or where I reproduced it locally. Items
 the PRs themselves label as regressions from post-1.4.3 PRs are listed in Part C and

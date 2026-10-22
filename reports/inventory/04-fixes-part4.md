@@ -2,11 +2,10 @@
 
 Corrects behaviour: a crash, a wrong result, a Node-parity gap, a hang, or a hardening change with no new API. This is the bulk of the queue.
 
-**1,086 pull requests.** Newest first.
+**1,085 pull requests.** Newest first.
 
 | PR | Title | What it does | Author | | Sec |
 |---|---|---|---|---|---|
-| [#37507](https://github.com/oven-sh/bun/pull/37507) | Bun.build({ compile }): produce the executable on the bundle thread instead of blocking the event loop | While await Bun.build({ compile: { ... } }) is pending, the calling thread's event loop stops once bundling finishes and does not resume until the output… | robobun |  |  |
 | [#37503](https://github.com/oven-sh/bun/pull/37503) | s3: S3Credentials::dupe() returns Box; drop the unshared refcount | buns3signing::S3Credentials (src/s3signing/credentials.rs) carried an intrusive refcount: RefCount<S3Credentials> and dupe() returned a… | robobun |  |  |
 | [#37501](https://github.com/oven-sh/bun/pull/37501) | fetch: reject an unreadable Bun.file() request body with a TypeError | fetch() with a Bun.file() request body that cannot be read rejects with a plain Error. Since #35855 the network errors fetch() produces are TypeErrors… | robobun |  |  |
 | [#37500](https://github.com/oven-sh/bun/pull/37500) | Bun.serve: free a gracefully stopped server at VM teardown | js // h.js const server = Bun.serve({ port: 0, fetch: () => new Response("x") }); | robobun |  |  |

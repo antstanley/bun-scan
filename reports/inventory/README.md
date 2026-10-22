@@ -10,8 +10,8 @@ Every open pull request on `oven-sh/bun`, one row each, grouped by what the PR i
 | [04-fixes-part1.md](04-fixes-part1.md) | 1100 |
 | [04-fixes-part2.md](04-fixes-part2.md) | 1100 |
 | [04-fixes-part3.md](04-fixes-part3.md) | 1100 |
-| [04-fixes-part4.md](04-fixes-part4.md) | 1086 |
-| [05-tests.md](05-tests.md) | 430 |
+| [04-fixes-part4.md](04-fixes-part4.md) | 1085 |
+| [05-tests.md](05-tests.md) | 432 |
 | [06-docs.md](06-docs.md) | 184 |
 | [07-chores-refactors-other.md](07-chores-refactors-other.md) | 181 |
 

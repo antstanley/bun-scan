@@ -203,7 +203,7 @@ keys", not "eMudhra".
 
 ## What this adds to the main finding
 
-The main report's systemic point was that security fixes pile up in a 5,652-PR queue.
+The main report's systemic point was that security fixes pile up in a 5,653-PR queue.
 These two sharpen it into something more specific and, I think, more useful:
 
 **Detection and patching are working. Shipping is not.**

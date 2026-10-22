@@ -1,6 +1,6 @@
 # Security deep dive — open oven-sh/bun PRs
 
-**Snapshot:** 2026-10-22, ~09:30 UTC · 5,652 open PRs · Bun latest release **1.4.3** (2026-10-10)
+**Snapshot:** 2026-10-22, ~09:30 UTC · 5,653 open PRs · Bun latest release **1.4.3** (2026-10-10)
 **Local verification build:** Bun **1.4.0** (macOS arm64)
 
 ---
@@ -35,7 +35,7 @@
 
 ## 1. Summary for a reader in a hurry
 
-Of 5,652 open PRs, **202 touch a security-relevant surface**. A hand-triage of all of
+Of 5,653 open PRs, **202 touch a security-relevant surface**. A hand-triage of all of
 them leaves **11 that I would act on**, and of those only **two are remotely reachable
 memory-safety or injection bugs in the default runtime**:
 
@@ -71,7 +71,7 @@ a release. The queue and the release channel, not the bugs, are the bottleneck.
 
 ## 2. How I worked, and how much to trust each claim
 
-**Candidate selection.** I pulled all 5,652 open PRs and classified each one against a
+**Candidate selection.** I pulled all 5,653 open PRs and classified each one against a
 vocabulary of vulnerability classes, CVE/GHSA identifiers and hardening signals, scoring
 the title above the body so that a passing mention of "use-after-free" in a long
 description does not create a finding. That produced 202 candidates in four tiers
@@ -884,11 +884,11 @@ The individual bugs are ordinary. What is not ordinary is the queue they are stu
 
 | Measure | Value |
 |---|---|
-| Open PRs at snapshot | **5,652** |
-| From `robobun` (the automated agent) | **4,533 (80.2%)** |
-| Carrying the `claude` label | 4,484 |
-| Opened in the previous 7 days | 821 |
-| Median age | **54 days** |
+| Open PRs at snapshot | **5,653** |
+| From `robobun` (the automated agent) | **4,534 (80.2%)** |
+| Carrying the `claude` label | 4,485 |
+| Opened in the previous 7 days | 856 |
+| Median age | **55 days** |
 | Older than a year | 108 |
 | Security-relevant | 202 |
 | Security PRs that **no longer apply to `main`** | **84 (42%)** |
@@ -911,7 +911,7 @@ is a security fix that ships late.
 
 **Staleness under a moving base.** The brotli case is the clean illustration: the PR's
 premise ("main builds v1.2.0") expired within hours of opening, because someone bumped
-the dependency. Nobody re-read it. In a queue where 821 PRs arrive per week, a PR that is
+the dependency. Nobody re-read it. In a queue where 856 PRs arrive per week, a PR that is
 not triaged in a day is a PR whose description is wrong.
 
 **And a release lag that is now the dominant risk.** F1 is already fixed on `main` and
