@@ -1,0 +1,6 @@
+# Raw API data. Regenerate with scripts/fetch_pulls.sh and friends.
+# ~147 MB of GitHub REST responses; not useful to clone.
+data/
+
+.DS_Store
+*.swp
