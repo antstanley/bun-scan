@@ -34,20 +34,20 @@ security. Median PR age: 54 days.
 |---|---|---|---|
 | 1 | [#46351](https://github.com/oven-sh/bun/pull/46351) | brotli decoder OOB write, **CVE-2026-111497** — remote, via `fetch()` on `Content-Encoding: br` | **8.1 High** |
 | 2 | [#42646](https://github.com/oven-sh/bun/pull/42646) | `HTMLRewriter` comment setter is an HTML-injection bypass → XSS | **6.1 Med** (8.0 privileged) |
-| 3 | [#45204](https://github.com/oven-sh/bun/pull/45204) | `bun add <url>` inherits `trustedDependencies` trust → lifecycle RCE | **7.1 High** |
+| 3 | [#45204](https://github.com/oven-sh/bun/pull/45204) | `bun add <url>` inherits `trustedDependencies` trust → lifecycle RCE | **7.5 High** |
 | 4 | [#42535](https://github.com/oven-sh/bun/pull/42535) | `URLPattern` polynomial backtracking → DoS | **7.5 High** |
 | 5 | [#36410](https://github.com/oven-sh/bun/pull/36410) | HTTP/2 CONTINUATION flood (CVE-2024-28182) → DoS | **7.5 High** |
-| 6 | [#38298](https://github.com/oven-sh/bun/pull/38298) | recursive `mkdir` follows a dangling symlink → write outside the directory | **5.9 Med** |
-| 7 | [#34468](https://github.com/oven-sh/bun/pull/34468) | `node:wasi` never bounds-checks guest pointers | **5.5 Med** |
-| 8 | [#29144](https://github.com/oven-sh/bun/pull/29144) | `Bun.cron()` predictable `/tmp` log path → local symlink attack | **5.0 Med** |
+| 6 | [#38298](https://github.com/oven-sh/bun/pull/38298) | recursive `mkdir` follows a dangling symlink → write outside the directory | **5.3 Med** |
+| 7 | [#34468](https://github.com/oven-sh/bun/pull/34468) | `node:wasi` never bounds-checks guest pointers | **5.1 Med** |
+| 8 | [#29144](https://github.com/oven-sh/bun/pull/29144) | `Bun.cron()` predictable `/tmp` log path → local symlink attack | **4.7 Med** |
 | 9 | [#45668](https://github.com/oven-sh/bun/pull/45668) + [#46143](https://github.com/oven-sh/bun/pull/46143) | `bun audit` reports "clean" when it is not | control bypass |
-| 10 | [#42411](https://github.com/oven-sh/bun/pull/42411) | HTTP/2 client `originSet` grows unbounded | **6.5 Med** |
+| 10 | [#42411](https://github.com/oven-sh/bun/pull/42411) | HTTP/2 client `originSet` grows unbounded | **7.5 High** |
 | 11 | [#33191](https://github.com/oven-sh/bun/pull/33191) | node:http/http2 hardening bundle (unvalidated h2 pseudo-headers, failures reported as `200`) | varies |
 | 12 | [#46392](https://github.com/oven-sh/bun/pull/46392) | QPACK header amplification, HTTP/3 — one connection OOMs the server (**fixed in 1.4.4**) | **7.5 High** |
 | 13 | [#46300](https://github.com/oven-sh/bun/pull/46300) | eMudhra intermediate CA compromise — Bun distrusts none of the 8 (**fixed in 1.4.4**) | **8.7 High** |
 | 14 | [#44618](https://github.com/oven-sh/bun/pull/44618) | TLS certificate-validation bypasses — WebSocket hostname, mTLS enforcement, silent plaintext (**fixed in 1.4.4**) | **7.4 High** |
-| 15 | [#45304](https://github.com/oven-sh/bun/pull/45304) | Postgres client never checked the certificate's hostname (**fixed in 1.4.4**) | **7.4 High** |
-| 16 | [#45223](https://github.com/oven-sh/bun/pull/45223) | WebSocket masked-frame desync and unbounded ping queue (**fixed in 1.4.4**) | **5.3 Med** |
+| 15 | [#45304](https://github.com/oven-sh/bun/pull/45304) | Postgres client never checked the certificate's hostname (**fixed in 1.4.4**) | **8.7 High** |
+| 16 | [#45223](https://github.com/oven-sh/bun/pull/45223) | WebSocket masked-frame desync and unbounded ping queue (**fixed in 1.4.4**) | **5.9 Med** |
 
 Severity here is the CVSS score. The triage file uses an **action** rating, which is
 harsher at the top: #46351 is "Critical" there — remote, unauthenticated memory corruption,

@@ -42,7 +42,56 @@ is speaking TLS when it is not.
 
 ---
 
-## 2. CVE status
+## 2. Severity, item by item
+
+No CVE means no official score, so these are mine — CVSS 3.1, computed for the realistic
+attack path, with the vector shown so you can disagree with the inputs rather than the
+number. `AC:H` throughout for anything needing a man-in-the-middle position, which is
+CVSS's own canonical example of high complexity.
+
+| # | Issue | Vector | Score | Precondition |
+|---|---|---|---|---|
+| 1 | `WebSocket` never called `checkServerIdentity` — **and ignored a pin that returned an Error** | `AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N` | **7.4 High** | MITM with any certificate from any trusted CA |
+| 2 | `NODE_TLS_REJECT_UNAUTHORIZED=0` disabled a server's client-certificate enforcement | `AV:N/AC:H/…` → 7.4 · `AV:N/AC:L/…` → **9.1** | **7.4–9.1** | the env var is set — which is exactly the population affected |
+| 3 | `tls: [...]` to `Bun.listen` / `Bun.connect` started a **plaintext** listener | `AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N` | **7.4 High** | app uses the array form; no attacker cert needed |
+| 4 | `https.createServer()` without a usable key/cert answered **plain HTTP** | `AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N` | **7.4 High** | misconfiguration that Node rejects |
+| 5 | Client certificate still sent to a server the client had refused | `AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N` | **3.7 Low** | hostile server; the certificate is public by design |
+| 6 | `secureConnect` reported `authorized === true` for a peer that failed the key proof | `AV:N/AC:H/…` → 7.4 · with `S:C` → 8.7 | **7.4 High**, 8.7 where `authorized` gates access | MITM |
+| 7 | Revoked client certificates accepted — no CRL on an mTLS server | `AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:N` | **6.8 Medium** | attacker already holds a revoked client cert |
+| 8 | Different client certs/CAs shared one `https.Agent` socket and session | `AV:N/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:N` | **4.2 Low** (up to 6.8 cross-tenant) | several identities in one process |
+| 9 | `PGSSLMODE=verify-*` dropped next to a `TLS_*` URL variable | `AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N` | **7.4 High** | MITM plus that option combination |
+| 10 | Postgres client never called `tls.checkServerIdentity` | `AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N` | **8.7 High** | MITM; `S:C` because database data crosses into the app |
+| 11 | Heap-use-after-free in the stream TLS engine | `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H` | **5.9 Medium** | no JS-observable oracle; release builds panic |
+| 12 | TLS `write()` silently lost 16 KB | `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N` | **5.9 Medium** | a stalled socket elsewhere on the loop |
+| 13 | SIGABRT in `fetch` through an environment proxy | `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H` | **5.9 Medium** | env proxy + `Bun.file()` body |
+
+### What that adds up to
+
+**Nine of the thirteen are certificate-validation or transport-security defects, and they
+cluster at 7.4–8.7 High.** The band is set by two things: none needs authentication, all
+need a network position, and the impact is a full loss of confidentiality and integrity on
+the affected channel.
+
+**Nothing here is Critical on its own.** There is no unauthenticated remote code execution
+and no pre-auth memory corruption: #11 is a use-after-free but with no proven trigger from
+JS, which is why it scores 5.9 rather than in the 8s. The one item that can reach Critical
+(9.1) is #2 — and only for deployments that actually set `NODE_TLS_REJECT_UNAUTHORIZED=0`,
+which is precisely the set of deployments affected by it.
+
+**Two items deserve more weight than their number suggests.** #1 ignored a
+`checkServerIdentity` callback that returned an `Error` — an application that had
+explicitly pinned a certificate was still unprotected, so the "mitigation" users would
+naturally reach for did nothing. And #3 is a *silent* plaintext listener: no error, no
+warning, and the traffic is readable by anyone on the path without needing a certificate at
+all.
+
+### How that compares with the CVE-bearing equivalents
+
+Node's advisories for the same class land in the same range — 5.3 (CVE-2021-44532,
+CVE-2021-22939), 7.4 (CVE-2021-44531), 8.2 (CVE-2024-27983). If these had been filed, they
+would have been rated High and would have appeared in exactly the band a reader expects.
+
+## 3. CVE status
 
 | Check | Result |
 |---|---|
@@ -57,7 +106,7 @@ process outcome, not an impossibility.
 
 ---
 
-## 3. What Bun did say
+## 4. What Bun did say
 
 The GitHub release page for 1.4.4 is 130 words and contains **no changelog**. The blog post
 (`bun.com/blog/bun-v1.4.4`) is the only disclosure surface, and it has a **Security**
@@ -97,7 +146,7 @@ feature addition.
 
 ---
 
-## 4. Did other projects have the same bugs?
+## 5. Did other projects have the same bugs?
 
 Node.js treats this exact class as CVE-worthy, and has done so repeatedly:
 
@@ -125,7 +174,7 @@ issued a CVE" is a statement about norms, not about obligation.
 
 ---
 
-## 5. So: undisclosed, or just quiet?
+## 6. So: undisclosed, or just quiet?
 
 The evidence supports **"shipped without disclosure"**, not **"concealed"**:
 
@@ -156,7 +205,7 @@ precise condition, and the fix version.
 
 ---
 
-## 6. What would change the answer
+## 7. What would change the answer
 
 If Bun had, in the 1.4.4 notes, published even a bare list — "TLS: hostname verification was
 not performed for WebSocket clients; Postgres did not check the certificate hostname; `tls:

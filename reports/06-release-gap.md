@@ -110,11 +110,11 @@ These stay broken whether or not you upgrade. From the main report:
 | **F2 · HTMLRewriter `comment.text` XSS** | **6.1** (8.0 privileged) | `-->` is rejected, `--!>`, `>`, `->` are not, so injected markup goes live. Reproduced. The lol-html pin has not moved and #43266 is still open. |
 | **F4 · `URLPattern` polynomial backtracking** | **7.5** | 8 KB path ≈ 30 s on the JS thread. #42535 open, conflicts. |
 | **F5 · HTTP/2 CONTINUATION flood** | **7.5** | Unauthenticated DoS against `node:http2` servers. #36410 open, CI-blocked. |
-| **F3 · `bun add <url>` inherits `trustedDependencies`** | **7.1** | Supply-chain: an unvetted source's lifecycle scripts run. #45204 open, needs a design ruling. |
-| **F10 · HTTP/2 client `originSet` unbounded** | **6.5** | Malicious server exhausts client memory. #42411 open. |
-| **F6 · recursive `mkdir` follows a dangling symlink** | **5.9** | Write outside the intended directory on macOS/FreeBSD. #38298 open. |
-| **F7 · `node:wasi` unbounded guest pointers** | **5.5** | Sandbox contract broken; fd leak; debug struct printed to host stdout. 3 PRs open. |
-| **F8 · `Bun.cron()` predictable `/tmp` path** | **5.0** | Local symlink attack → append to any file the victim can write. #29144 open. |
+| **F3 · `bun add <url>` inherits `trustedDependencies`** | **7.5** | Supply-chain: an unvetted source's lifecycle scripts run. #45204 open, needs a design ruling. |
+| **F10 · HTTP/2 client `originSet` unbounded** | **7.5** | Malicious server exhausts client memory. #42411 open. |
+| **F6 · recursive `mkdir` follows a dangling symlink** | **5.3** | Write outside the intended directory on macOS/FreeBSD. #38298 open. |
+| **F7 · `node:wasi` unbounded guest pointers** | **5.1** | Sandbox contract broken; fd leak; debug struct printed to host stdout. 3 PRs open. |
+| **F8 · `Bun.cron()` predictable `/tmp` path** | **4.7** | Local symlink attack → append to any file the victim can write. #29144 open. |
 | **F9 · `bun audit` fails open** | control bypass | "No vulnerabilities found" on a HIGH advisory, and on unchecked tarball/git packages. #45668, #46143 open. |
 
 F2 is the one to watch: it is the only remotely reachable code-execution-class issue in the

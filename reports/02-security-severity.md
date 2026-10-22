@@ -139,19 +139,19 @@ because that is where Bun is used.
 |---|---|---|---|---|---|---|---|
 | F1 | [#46351](https://github.com/oven-sh/bun/pull/46351) | brotli decoder OOB write | CWE-787 | **8.1 High** | No (fixed 10-21) | **Yes** | verified |
 | F2 | [#42646](https://github.com/oven-sh/bun/pull/42646) | `HTMLRewriter` comment sanitizer bypass → XSS | CWE-79 | **6.1 Med** (8.0 in a privileged app) | **Yes** | **Yes** | verified |
-| F3 | [#45204](https://github.com/oven-sh/bun/pull/45204) | `bun add <url>` inherits `trustedDependencies` trust | CWE-829 | **7.1 High** | **Yes** | **Yes** | confirmed |
+| F3 | [#45204](https://github.com/oven-sh/bun/pull/45204) | `bun add <url>` inherits `trustedDependencies` trust | CWE-829 | **7.5 High** | **Yes** | **Yes** | confirmed |
 | F4 | [#42535](https://github.com/oven-sh/bun/pull/42535) | `URLPattern` polynomial backtracking | CWE-1333 | **7.5 High** | **Yes** | **Yes** | verified |
 | F5 | [#36410](https://github.com/oven-sh/bun/pull/36410) | HTTP/2 CONTINUATION flood | CWE-400 | **7.5 High** | **Yes** | **Yes** | confirmed |
-| F6 | [#38298](https://github.com/oven-sh/bun/pull/38298) | recursive `mkdir` follows a dangling symlink | CWE-59 | **5.9 Med** | **Yes** | **Yes** | verified |
-| F7 | [#34468](https://github.com/oven-sh/bun/pull/34468) | `node:wasi` unbounded guest pointers | CWE-787/CWE-20 | **5.5 Med** | **Yes** | **Yes** | verified |
-| F8 | [#29144](https://github.com/oven-sh/bun/pull/29144) | `Bun.cron()` predictable `/tmp` log path | CWE-377 | **5.0 Med** | **Yes** | **Yes** | confirmed |
+| F6 | [#38298](https://github.com/oven-sh/bun/pull/38298) | recursive `mkdir` follows a dangling symlink | CWE-59 | **5.3 Med** | **Yes** | **Yes** | verified |
+| F7 | [#34468](https://github.com/oven-sh/bun/pull/34468) | `node:wasi` unbounded guest pointers | CWE-787/CWE-20 | **5.1 Med** | **Yes** | **Yes** | verified |
+| F8 | [#29144](https://github.com/oven-sh/bun/pull/29144) | `Bun.cron()` predictable `/tmp` log path | CWE-377 | **4.7 Med** | **Yes** | **Yes** | confirmed |
 | F9 | [#45668](https://github.com/oven-sh/bun/pull/45668) + [#46143](https://github.com/oven-sh/bun/pull/46143) | `bun audit` fails open / reports clean on unchecked packages | CWE-636 | control bypass | **Yes** | **Yes** | confirmed |
-| F10 | [#42411](https://github.com/oven-sh/bun/pull/42411) | HTTP/2 client `originSet` unbounded | CWE-400 | **6.5 Med** | **Yes** | **Yes** | author-reported |
+| F10 | [#42411](https://github.com/oven-sh/bun/pull/42411) | HTTP/2 client `originSet` unbounded | CWE-400 | **7.5 High** | **Yes** | **Yes** | author-reported |
 | F11 | [#46392](https://github.com/oven-sh/bun/pull/46392) + [#46436](https://github.com/oven-sh/bun/pull/46436) | QPACK header amplification, HTTP/3 (FoxIO) | CWE-400 | **7.5 High** | No (fixed 10-22) | **Yes** | verified |
 | F12 | [#46300](https://github.com/oven-sh/bun/pull/46300) | eMudhra intermediate CA compromise — no distrust list | CWE-295 | **8.7 High** | No (fixed 10-21) | **Yes** | verified |
 | F13 | [#44618](https://github.com/oven-sh/bun/pull/44618) | TLS certificate-validation bypasses (9) | CWE-295/319/287 | **7.4 High** | No (fixed 10-10) | **Yes** | confirmed |
-| F14 | [#45304](https://github.com/oven-sh/bun/pull/45304) | Postgres client never checked the hostname | CWE-295 | **7.4 High** | No (fixed 10-17) | **Yes** | confirmed |
-| F15 | [#45223](https://github.com/oven-sh/bun/pull/45223) | WebSocket masked-frame desync | CWE-444 | **5.3 Med** | No (fixed 10-17) | **Yes** | confirmed |
+| F14 | [#45304](https://github.com/oven-sh/bun/pull/45304) | Postgres client never checked the hostname | CWE-295 | **8.7 High** | No (fixed 10-17) | **Yes** | confirmed |
+| F15 | [#45223](https://github.com/oven-sh/bun/pull/45223) | WebSocket masked-frame desync | CWE-444 | **5.9 Med** | No (fixed 10-17) | **Yes** | confirmed |
 | — | [#33191](https://github.com/oven-sh/bun/pull/33191) | node:http/http2 hardening bundle | mixed | varies | partially | — | confirmed |
 
 ---
@@ -326,7 +326,7 @@ cheapest high-value merge in the entire queue.
 
 ## F3 · `bun add <url>` inherits `trustedDependencies` trust
 
-> **PR [#45204](https://github.com/oven-sh/bun/pull/45204)** · `explicit` · open, **conflicts with main** · 9 files, +819/-25 · **CVSS 7.1 High**
+> **PR [#45204](https://github.com/oven-sh/bun/pull/45204)** · `explicit` · open, **conflicts with main** · 9 files, +819/-25 · **CVSS 7.5 High**
 
 `trustedDependencies` is Bun's allow-list for lifecycle scripts: a package on the list
 may run `postinstall`, everything else may not. The check is by **name**.
@@ -349,7 +349,7 @@ chose the name of something that was. The PR's repro runs the same on 1.4.0 thro
 scripts". Adding an arbitrary URL is a different decision, and it silently inherits the
 first one. This is the same shape as pnpm's GHSA-5wx6-mg75-v57r, which the PR cites.
 
-**Severity:** `AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H` = **7.1 High**. `AC:H`/`UI:R`
+**Severity:** `AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H` = **7.5 High**. `AC:H`/`UI:R`
 because the developer must run `bun add` against an attacker-controlled source — but that
 is exactly the social-engineering path ("try this fork of sharp"), and the delta between
 "install a package" and "execute its code" is the whole point of the trust list.
@@ -422,7 +422,7 @@ intentionally differs from Node (RFC 9113 requires `PROTOCOL_ERROR` where nghttp
 
 ## F6 · Recursive `mkdir` follows a dangling symlink
 
-> **PR [#38298](https://github.com/oven-sh/bun/pull/38298)** · `vuln-class` · open · 4 files, +166/-9 · **CVSS 5.9 Medium**
+> **PR [#38298](https://github.com/oven-sh/bun/pull/38298)** · `vuln-class` · open · 4 files, +166/-9 · **CVSS 5.3 Medium**
 
 `mkdir_recursive_os_path_impl` hands the caller's string to `mkdir(2)` verbatim. On
 BSD-derived kernels (macOS, FreeBSD), POSIX pathname resolution follows a symlink in the
@@ -456,7 +456,7 @@ requiring the attacker to have planted a dangling symlink in a directory the app
 into. That combination is exactly the shape of an upload/extraction directory, a shared
 `/tmp` work dir, or a multi-tenant storage root.
 
-**Severity:** `AV:N/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:N` = **5.9 Medium**. `AC:H` and `PR:L`
+**Severity:** `AV:N/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:N` = **5.3 Medium**. `AC:H` and `PR:L`
 because of the symlink precondition; the impact is arbitrary file write, which in a
 server context is one step from code execution (write a config, a cron file, a plugin).
 
@@ -467,7 +467,7 @@ error reporting) are part of the same knot and should land together.
 
 ## F7 · `node:wasi` does not bound guest pointers
 
-> **PRs [#34468](https://github.com/oven-sh/bun/pull/34468), [#39100](https://github.com/oven-sh/bun/pull/39100), [#40654](https://github.com/oven-sh/bun/pull/40654), [#34475](https://github.com/oven-sh/bun/pull/34475)** · `vuln-class`/`hardening` · all open · **CVSS 5.5 Medium**
+> **PRs [#34468](https://github.com/oven-sh/bun/pull/34468), [#39100](https://github.com/oven-sh/bun/pull/39100), [#40654](https://github.com/oven-sh/bun/pull/40654), [#34475](https://github.com/oven-sh/bun/pull/34475)** · `vuln-class`/`hardening` · all open · **CVSS 5.1 Medium**
 
 WASI exists to run untrusted code with a restricted capability set. Its hostcalls take
 guest pointers as `i32` offsets into linear memory, and the host is supposed to validate
@@ -505,7 +505,7 @@ before failing.
 host-memory OOB read/write; it is a broken sandbox contract, an fd leak and an
 information disclosure. That is still the one thing WASI must not do.
 
-**Severity:** `AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N` = **5.5 Medium** — but for a plugin
+**Severity:** `AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N` = **5.1 Medium** — but for a plugin
 host that runs uploaded `.wasm`, this is the **highest-priority item in the queue after F1
 and F2**, because the threat model *is* the untrusted guest.
 
@@ -519,7 +519,7 @@ the remainder. Nobody can merge them independently; this needs one owner and one
 
 ## F8 · `Bun.cron()` predictable `/tmp` log path
 
-> **PR [#29144](https://github.com/oven-sh/bun/pull/29144)** · `explicit` · open · 7 files, +263/-73 · **CVSS 5.0 Medium**
+> **PR [#29144](https://github.com/oven-sh/bun/pull/29144)** · `explicit` · open · 7 files, +263/-73 · **CVSS 4.7 Medium**
 
 `Bun.cron()` on macOS writes a launchd plist whose `StandardOutPath` and
 `StandardErrorPath` are `/tmp/bun.cron.<title>.{stdout,stderr}.log`. `/tmp` is
@@ -533,7 +533,7 @@ the attacker partly controls if they can influence the job's output.
 **Verified on `main`:** `src/runtime/api/cron.rs` still contains
 `<string>/tmp/bun.cron.{0}.stdout.log</string>`.
 
-**Severity:** `AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:N` = **5.0 Medium**. Local, multi-user,
+**Severity:** `AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:N` = **4.7 Medium**. Local, multi-user,
 macOS-only, append-only — but "append bytes to a file of my choosing" reaches
 `~/.ssh/authorized_keys`, shell rc files and launch agents, so the ceiling is code
 execution as the victim.
@@ -579,14 +579,14 @@ cheap half of the problem is the one that is ready.
 
 ## F10 · HTTP/2 client `originSet` grows without bound
 
-> **PR [#42411](https://github.com/oven-sh/bun/pull/42411)** · `explicit` · open · 6 files, +209/-8 · **CVSS 6.5 Medium**
+> **PR [#42411](https://github.com/oven-sh/bun/pull/42411)** · `explicit` · open · 6 files, +209/-8 · **CVSS 7.5 High**
 
 A `node:http2` **client** appends every origin of every inbound `ORIGIN` frame to
 `session.originSet` with no limit. A malicious TLS server can send `ORIGIN` frames for the
 life of the session and grow client memory without bound. Node capped this at
 `maxOriginSetSize` in 26.4.0; Bun has no cap.
 
-**Severity:** `AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H` = **6.5 Medium** — network, low
+**Severity:** `AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H` = **7.5 High** — network, low
 complexity, but requires the attacker to be the *server* the client chose to talk to, and
 memory growth is slow.
 
@@ -790,7 +790,7 @@ client certificates stops requiring them.
 
 ## F14 · The Postgres client never verified the hostname
 
-> **PR [#45304](https://github.com/oven-sh/bun/pull/45304)** · merged 2026-10-17 · **CVSS 7.4 High**
+> **PR [#45304](https://github.com/oven-sh/bun/pull/45304)** · merged 2026-10-17 · **CVSS 8.7 High**
 
 > `tls.checkServerIdentity` was never called → called, and it raises an `sslmode` below
 > `verify-ca` to `verify-full`, so a self-signed certificate without `ca` fails, as in `pg`
@@ -802,7 +802,7 @@ certificate was issued for the host it connected to**. A valid certificate for
 TLS. The same PR adds SCRAM-SHA-256-PLUS with `channelBinding: disable|prefer|require`,
 which binds the authentication exchange to the TLS channel.
 
-**Severity:** `AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N` = **7.4 High** — `S:C` because a
+**Severity:** `AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N` = **8.7 High** — `S:C` because a
 compromised database connection crosses from network into application data. `AC:H` for the
 MITM position.
 
@@ -812,7 +812,7 @@ MITM position.
 
 ## F15 · WebSocket parsed a masked server frame with the mask key as payload
 
-> **PR [#45223](https://github.com/oven-sh/bun/pull/45223)** · merged 2026-10-17 · **CVSS 5.3 Medium**
+> **PR [#45223](https://github.com/oven-sh/bun/pull/45223)** · merged 2026-10-17 · **CVSS 5.9 Medium**
 
 > A masked Ping, Close or continuation frame from a server was parsed with the mask key as
 > payload, and the connection continued out of sync. Any masked frame now fails the
@@ -825,7 +825,7 @@ request smuggling. The same PR fixes an availability bug: control frames that no
 listened for were queued for a later listener, so **a flood of pings grew memory to
 gigabytes**.
 
-**Severity:** `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N` = **5.3** — impact depends on the
+**Severity:** `AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N` = **5.9** — impact depends on the
 proxy topology, so I am scoring the desync itself rather than a specific smuggling exploit.
 
 **Status: live in 1.4.3; fixed in 1.4.4** (shipped 2026-10-22, verified at the tag).
