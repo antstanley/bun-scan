@@ -219,7 +219,7 @@ v1.2.1. Meanwhile, the **release** users run is still exposed:
 | Tree | brotli pin | Status |
 |---|---|---|
 | `main` | v1.2.1 (`db24a98a`) | **fixed** |
-| `bun-v1.4.3` (latest release) | v1.2.0 (`028fb5a2`) | **vulnerable** |
+| `bun-v1.4.3` (the release at the time) | v1.2.0 (`028fb5a2`) | **vulnerable** |
 | 1.4.2 and earlier | v1.1.0 | **vulnerable** |
 | local Bun 1.4.0 | — | vulnerable: `zlib.constants.BROTLI_DECODER_ERROR_FORMAT_BLOCK_SWITCH` is `undefined`, while `..._BLOCK_LENGTH_1` is `-9` |
 

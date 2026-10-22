@@ -207,21 +207,22 @@ keys", not "eMudhra".
 The main report's systemic point was that security fixes pile up in a 5,653-PR queue.
 These two sharpen it into something more specific and, I think, more useful:
 
-**Detection and patching are working. Shipping is not.**
+**Detection and patching worked. Shipping lagged — and then caught up.**
 
 | Event | `main` fixed | Released |
 |---|---|---|
-| brotli CVE-2026-111497 published 2026-10-21 | 2026-10-21 (dependency bump) | **not yet** |
-| eMudhra disclosure 2026-10-20 | 2026-10-21 | **not yet** |
-| QPACK amplification published 2026-10-20 | 2026-10-22 | **not yet** |
+| brotli CVE-2026-111497 published 2026-10-21 | 2026-10-21 (dependency bump) | **1.4.4**, 2026-10-22 |
+| eMudhra disclosure 2026-10-20 | 2026-10-21 | **1.4.4**, 2026-10-22 |
+| QPACK amplification published 2026-10-20 | 2026-10-22 | **1.4.4**, 2026-10-22 |
 
 Three independent, high-profile advisories in three days, three patches on `main` within
-24 hours, and **zero** of them reachable by `bun upgrade`. The latest release is twelve
-days old. Whatever the release cadence normally is, it is now the binding constraint on
-Bun's security posture — not the review queue, and not the agent.
+24 hours, and at the time this was written **zero** of them reachable by `bun upgrade` —
+the latest release was twelve days old. That window closed on 2026-10-22 when 1.4.4
+shipped with all three. The lesson stands and is worth keeping: the release cadence, not
+the review queue, was the binding constraint on Bun's security posture.
 
-Concretely: a 1.4.4 cut from `main` today would close a remote memory-corruption bug, a
-remote DoS, and a CA-trust compromise in one release. Nothing else in this evaluation has
+Concretely, 1.4.4 closed a remote memory-corruption bug, a remote DoS and a CA-trust
+compromise in one release. Nothing else in this evaluation has
 that ratio.
 
 ---

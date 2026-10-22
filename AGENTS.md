@@ -18,8 +18,8 @@ This repository holds an evaluation of the open pull requests on
 | `reports/01-overview.md` | hand-written; **numbers must be refreshed by hand** |
 | `reports/02-security-severity.md` | hand-written (findings F1–F15) |
 | `reports/04-advisory-check.md` | hand-written appendix for F11/F12 |
-| `reports/05-next-release.md` | hand-written; describes what is merged but unreleased |
-| `reports/06-release-gap.md` | hand-written; **the bottom line** — what 1.4.3 is exposed to |
+| `reports/05-next-release.md` | hand-written; what shipped in 1.4.4, verified at the tag |
+| `reports/06-release-gap.md` | hand-written; **the bottom line** — what 1.4.3 was exposed to and what remains |
 | `README.md`, `reports/README.md` | hand-written indexes with headline numbers |
 | `reports/07-1.4.4-changelog.md` | hand-written security changelog, one per release |
 

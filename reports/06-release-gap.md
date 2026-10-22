@@ -31,7 +31,7 @@ PRs merged between the two tags — most of them inside consolidation PRs whose 
 
 ## Part A — was vulnerable in 1.4.3, fixed in 1.4.4
 
-Ordered by severity. "Basis" says how I know 1.4.3 is affected.
+Ordered by severity. "Basis" says how I know 1.4.3 was affected.
 
 ### A1. Published advisories
 

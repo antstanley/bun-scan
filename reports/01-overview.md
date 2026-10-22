@@ -1,7 +1,7 @@
 # The open PR queue on `oven-sh/bun` — what 5,653 PRs are actually about
 
-**Snapshot:** 2026-10-22, ~09:30 UTC
-**Latest Bun release at snapshot:** 1.4.3 (2026-10-10)
+**Queue snapshot:** 2026-10-22
+**Release analysed:** 1.4.3 (2026-10-10) · **Latest release: 1.4.4** (2026-10-22)
 **Source:** GitHub REST API, every open PR, all 57 pages, deduplicated (5,653 unique, zero
 pagination drift)
 

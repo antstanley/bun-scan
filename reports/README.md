@@ -42,11 +42,11 @@ security. Median PR age: 54 days.
 | 9 | [#45668](https://github.com/oven-sh/bun/pull/45668) + [#46143](https://github.com/oven-sh/bun/pull/46143) | `bun audit` reports "clean" when it is not | control bypass |
 | 10 | [#42411](https://github.com/oven-sh/bun/pull/42411) | HTTP/2 client `originSet` grows unbounded | **6.5 Med** |
 | 11 | [#33191](https://github.com/oven-sh/bun/pull/33191) | node:http/http2 hardening bundle (unvalidated h2 pseudo-headers, failures reported as `200`) | varies |
-| 12 | [#46392](https://github.com/oven-sh/bun/pull/46392) | QPACK header amplification, HTTP/3 — one connection OOMs the server (**merged, unreleased**) | **7.5 High** |
-| 13 | [#46300](https://github.com/oven-sh/bun/pull/46300) | eMudhra intermediate CA compromise — Bun distrusts none of the 8 (**merged, unreleased**) | **8.7 High** |
-| 14 | [#44618](https://github.com/oven-sh/bun/pull/44618) | TLS certificate-validation bypasses — WebSocket hostname, mTLS enforcement, silent plaintext (**merged, unreleased**) | **7.4 High** |
-| 15 | [#45304](https://github.com/oven-sh/bun/pull/45304) | Postgres client never checked the certificate's hostname (**merged, unreleased**) | **7.4 High** |
-| 16 | [#45223](https://github.com/oven-sh/bun/pull/45223) | WebSocket masked-frame desync and unbounded ping queue (**merged, unreleased**) | **5.3 Med** |
+| 12 | [#46392](https://github.com/oven-sh/bun/pull/46392) | QPACK header amplification, HTTP/3 — one connection OOMs the server (**fixed in 1.4.4**) | **7.5 High** |
+| 13 | [#46300](https://github.com/oven-sh/bun/pull/46300) | eMudhra intermediate CA compromise — Bun distrusts none of the 8 (**fixed in 1.4.4**) | **8.7 High** |
+| 14 | [#44618](https://github.com/oven-sh/bun/pull/44618) | TLS certificate-validation bypasses — WebSocket hostname, mTLS enforcement, silent plaintext (**fixed in 1.4.4**) | **7.4 High** |
+| 15 | [#45304](https://github.com/oven-sh/bun/pull/45304) | Postgres client never checked the certificate's hostname (**fixed in 1.4.4**) | **7.4 High** |
+| 16 | [#45223](https://github.com/oven-sh/bun/pull/45223) | WebSocket masked-frame desync and unbounded ping queue (**fixed in 1.4.4**) | **5.3 Med** |
 
 Severity here is the CVSS score. The triage file uses an **action** rating, which is
 harsher at the top: #46351 is "Critical" there — remote, unauthenticated memory corruption,
@@ -71,10 +71,10 @@ working — several findings say *"an audit found this, no user reported it"*. D
 not.
 
 **1.4.4 shipped on 2026-10-22 and closes 27 issues.** Six of the fifteen findings are
-fixed; nine (F2–F10) are outstanding, and none of those is fixed-but-unreleased. F1, F11 and F12 (brotli, QPACK,
-eMudhra) plus nine TLS certificate-validation bypasses, a Postgres MITM and a WebSocket
-desync — all verified present in the tag, not just predicted from `main`. Nine findings,
-including the HTMLRewriter XSS, stay open either way. See
+fixed — F1, F11 and F12 (brotli, QPACK, eMudhra) plus nine TLS certificate-validation
+bypasses, a Postgres MITM and a WebSocket desync, all verified present in the tag rather
+than predicted from `main`. Nine (F2–F10) are outstanding, and since `main` is still
+identical to the tag, none of them is fixed-but-unreleased. See
 [06-release-gap.md](06-release-gap.md).
 
 ## Method, and its limits
